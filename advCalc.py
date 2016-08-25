@@ -47,8 +47,8 @@ def pullDotabuff():
 		#print(urlOut.text)
 		#while (urlOut.status_code == 429):
 	#		print("Blocked- sleeping")
-	#		time.sleep(300 + 30*random.random())
-	#		urlOut = requests.get(heroUrl) #CHANGE TO REQUESTS
+	#		time.sleep(60*60 + 30*random.random())
+	#		urlOut = requests.get(heroUrl)
 
 		urlText = heroHtml.pop(0)
 		if (urlText):
