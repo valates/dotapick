@@ -35,7 +35,7 @@ def startPicks(percentThreshold):
 	pickedHeroes = []
 	outputHeroesLeft(heroesLeft, heroAdvMap)
 	while (len(pickedHeroes) < 5):
-		#try:
+		try:
 			print("\n")
 			pickedHero = input("Enter picked hero, \"sort\" to sort current, or \"" + KILL_COMMAND + "\" to quit: ").lower()
 			if (pickedHero == KILL_COMMAND):
@@ -81,8 +81,8 @@ def startPicks(percentThreshold):
 				print("\n\nPicked heroes:")
 				for hero in pickedHeroes:
 					print(hero)
-		#except KeyError:
-		#	print("Invalid hero name '" + pickedHero + "', try again.")
+		except KeyError:
+			print("Invalid hero name '" + pickedHero + "', try again.")
 	performSort(heroesLeft, heroAdvMap, pickedHeroes)
 
 def properFormatName(heroname):
