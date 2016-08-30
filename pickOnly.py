@@ -15,11 +15,14 @@ def splitFileByNewline(filename):
 HEROES_LIST = splitFileByNewline(HERONAME_FILE)
 SORT_INPUTS = ['sum', 'average', '1', '2', '3', '4', '5']
 KILL_COMMAND = 'q'
+""" Makes no sense to add a shorthand for every single hero. """
+KILL_ALL = '*'
+SHORTHAND_BLACKLIST = [KILL_ALL]
 
 def main(args):
     argc = len(sys.argv)
     argv = sys.argv[1:]
-    percentThreshold = 2
+    percentThreshold = 2.0
     if (argc == 2):
     	percentThreshold = float(argv[0])
     startPicks(percentThreshold)
@@ -39,6 +42,7 @@ def startPicks(percentThreshold):
 	outputHeroesLeft(heroesLeft, heroAdvMap)
 	dups = formDuplicates()
 	shorts = formShorthands(dups[1])
+	shorthandDict = shorts[1]
 	while (len(pickedHeroes) < 5):
 		try:
 			print("\n")
@@ -53,7 +57,10 @@ def startPicks(percentThreshold):
 				else:
 					performSort(heroesLeft, heroAdvMap, pickedHeroes)
 			else:
-				properHero = properFormatName(pickedHero)
+				if (pickedHero in shorthandDict):
+					properHero = shorthandDict[pickedHero]
+				else:
+					properHero = properFormatName(pickedHero)
 				print("\n**********\n")
 				if (properHero not in pickedHeroes):
 					if properHero in heroesLeft:
@@ -86,12 +93,13 @@ def startPicks(percentThreshold):
 				for hero in pickedHeroes:
 					print(hero)
 		except KeyError:
-			print("Invalid hero name '" + pickedHero + "', add it to shorthands?.")
+			print("Invalid hero name '" + pickedHero + "', add it to shorthands?")
 			heroToMap = properFormatName(input("If so, enter a valid hero name: "))
 			if heroToMap in heroDict:
 				response = input("Adding shorthand '" + pickedHero + "' for hero '" + heroToMap + "'. Enter 'y' to confirm: ")
 				if (response == 'y'):
 					addShorthand(heroToMap, pickedHero, shorts[0])
+					shorthandDict[pickedHero] = heroToMap
 					print("Shorthand added.")
 				else:
 					print("Shorthand cancelled.")
@@ -131,7 +139,7 @@ def startPicks(percentThreshold):
 					for hero in pickedHeroes:
 						print(hero)
 			else:
-				print("Invalid hero name '" + pickedHero + "', not adding to shorthands. Please enter a real name.")
+				print("Invalid hero name '" + heroToMap + "', not adding to shorthands. Please enter a real name.")
 	performSort(heroesLeft, heroAdvMap, pickedHeroes)
 
 def properFormatName(heroname):
@@ -216,7 +224,7 @@ def formDictFromCommaFile(filename, duplicates = {}):
 	lines = splitFileByNewline(filename)
 	commaLists = []
 	for line in lines:
-		lineList = line.split(',')
+		lineList = line.split(', ')
 		if (len(lineList) != 1):
 			commaLists.append(lineList)
 	curDict = {}
@@ -237,18 +245,49 @@ def formShorthands(duplicatesDict):
 def addShorthand(heroname, shorthand, shorthandLines):
 	newLines = []
 	for line in shorthandLines:
-		lineSplit = line.split(',')
+		lineSplit = line.split(', ')
 		name = lineSplit[0]
-		values = [val.replace(' ', '') for val in lineSplit[1:]]
+		values = lineSplit[1:]
 		newline = name
 		if ((heroname == name) and (shorthand not in values)):
 			line += ", " + shorthand
 		newLines.append(line)
-	print(newLines)
-	print("******************")
 	updateFile(newLines, SHORTHAND_FILE)
+	return newLines
 
+def addShorthands(shorthandDict, shorthandLines, heroAdvMap):
+	response = 'y'
+	while(response == 'y'):
+		heroExist = False
+		while (not heroExist):
+			heroname = input("Enter heroname: ")
+			if (heroname in shorthandDict):
+				heroname = shorthandDict[heroname]
+			else:
+				heroname = properFormatName(heroname)
+			heroExist = heroname in heroAdvMap
+			if heroExist is False:
+				print("No such hero '" + heroname + "'. Try again.")
+		shorthand = input("Enter shorthand (will be forced all lowercase): ").lower()
+		if (shorthand not in SHORTHAND_BLACKLIST):
+			response = input("Adding shorthand '" + shorthand + "' for hero '" + heroname + "'. Enter 'y' to confirm: ")
+			if (response == 'y'):
+				shorthandLines = addShorthand(heroname, shorthand, shorthandLines)
+				shorthandDict[shorthand] = heroname
+				print(shorthandDict)
+				print("Shorthand added.")
+			else:
+				print("Shorthand cancelled.")
+		else:
+			print("Sorry, that shorthand is blacklisted. Don't be naughty.")
+		response = input("Enter 'y' to continue adding shorthands. Any other input to exit: ")
+	return (shorthandDict, shorthandLines)
 
+def resetShorthands(shorthandDict, shorthandLines):
+	shorthandDict = {}
+	shorthandLines = HEROES_LIST
+	updateFile(HEROES_LIST, SHORTHAND_FILE)
+	return (shorthandDict, shorthandLines)
 
 
 if __name__ == '__main__':
