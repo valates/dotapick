@@ -78,7 +78,7 @@ Shadow Demon
 Shadow Fiend
 Shadow Shaman
 Silencer
-Skywrath mage
+Skywrath Mage
 Slardar
 Slark
 Sniper
@@ -93,7 +93,7 @@ Tidehunter
 Timbersaw
 Tinker
 Tiny
-Treant protector
+Treant Protector
 Troll Warlord
 Tusk
 Undying

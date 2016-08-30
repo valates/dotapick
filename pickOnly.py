@@ -1,11 +1,14 @@
 import sys
 
+HERONAME_FILE = 'heroes.txt'
+MATCHES_FILE = 'heromatch.txt'
+
 def splitFileByNewline(filename):
     with open(filename) as f:
         lines = f.read().splitlines()
     return lines
 
-HEROES_LIST = splitFileByNewline("heroes.txt")
+HEROES_LIST = splitFileByNewline(HERONAME_FILE)
 SORT_INPUTS = ['sum', 'average', '1', '2', '3', '4', '5']
 KILL_COMMAND = 'q'
 
@@ -18,39 +21,40 @@ def main(args):
     startPicks(percentThreshold)
 
 def startPicks(percentThreshold):
-	matchupData = splitFileByNewline("heromatch.txt")
+	matchupData = splitFileByNewline(MATCHES_FILE)
 	heroDict = {}
 	heroAdvMap = {}
 	heroCount = 0
 	heroesLeft = []
 	for hero in HEROES_LIST:
-		heroDict[hero.lower()] = heroCount
-		heroAdvMap[hero.lower()] = []
+		print(hero)
+		heroDict[hero] = heroCount
+		heroAdvMap[hero] = []
 		heroesLeft.append(hero)
 		heroCount += 1
 	pickedHeroes = []
 	outputHeroesLeft(heroesLeft, heroAdvMap)
 	while (len(pickedHeroes) < 5):
-		try:
+		#try:
 			print("\n")
-			pickedHero = input("Enter picked hero, \"sort\" to sort current, or \"" + KILL_COMMAND + "\" to quit: ")
-			if (pickedHero.lower() == KILL_COMMAND):
+			pickedHero = input("Enter picked hero, \"sort\" to sort current, or \"" + KILL_COMMAND + "\" to quit: ").lower()
+			if (pickedHero == KILL_COMMAND):
 				exit()
-			elif (pickedHero.lower() in SORT_INPUTS):
+			elif (pickedHero in SORT_INPUTS):
 				print("Not currently in sorting function. Entry 'sort' to switch.")
-			elif (pickedHero.lower() == "sort"):
+			elif (pickedHero == "sort"):
 				if (len(pickedHeroes) == 0):
 					print("Cannot sort without any advantages. Pick a hero first.")
 				else:
 					performSort(heroesLeft, heroAdvMap, pickedHeroes)
 			else:
-				pickedHero = prophetFix(pickedHero).lower()
+				pickedHero = prophetFix(pickedHero)
+				properHero = properFormatName(pickedHero)
 				print("\n**********\n")
-				if (pickedHero not in pickedHeroes):
-					properHero = properFormatName(pickedHero)
+				if (properHero not in pickedHeroes): #CHANGE TO PROPERHERO
 					if properHero in heroesLeft:
 						heroesLeft.remove(properHero)
-					heroAdvs = matchupData[heroDict[pickedHero]]
+					heroAdvs = matchupData[heroDict[properHero]]
 					heroAdvs = heroAdvs[1:-1]
 					heroAdvs = heroAdvs.split('), ')
 					for entry in heroAdvs:
@@ -61,14 +65,14 @@ def startPicks(percentThreshold):
 						entryName = prophetFix(entryName)
 						entryTuple[1] = entryTuple[1].replace(')', '')
 						entryAdv = float(entryTuple[1])
-						heroAdvMap[entryName.lower()].append(entryAdv)
+						heroAdvMap[entryName].append(entryAdv)
 						if (entryAdv > percentThreshold):
 							if (entryName in heroesLeft):
 								heroesLeft.remove(entryName)
-					pickedHeroes.append(pickedHero)
+					pickedHeroes.append(properHero)
 					pickedHeader = ''
 					for hero in pickedHeroes:
-						properHero = properFormatName(hero)
+						properHero = properFormatName(hero) #remove later
 						pickedHeader += '{:^20}'.format(properHero)
 					print('{:<20}'.format("Hero") + pickedHeader)
 					outputHeroesLeft(heroesLeft, heroAdvMap)
@@ -76,10 +80,9 @@ def startPicks(percentThreshold):
 					print("Hero already marked as picked.")
 				print("\n\nPicked heroes:")
 				for hero in pickedHeroes:
-					properHero = properFormatName(hero)
-					print(properHero)
-		except KeyError:
-			print("Invalid hero name '" + pickedHero + "', try again.")
+					print(hero)
+		#except KeyError:
+		#	print("Invalid hero name '" + pickedHero + "', try again.")
 	performSort(heroesLeft, heroAdvMap, pickedHeroes)
 
 def properFormatName(heroname):
@@ -91,6 +94,7 @@ def properFormatName(heroname):
 			properHero += heroname[i]
 	properHero = properHero.replace("Of", "of")
 	properHero = properHero.replace("The", "the")
+	properHero = properHero.replace("Natures", "Nature's")
 	return properHero
 
 def prophetFix(heroname):
@@ -102,7 +106,7 @@ def outputHeroesLeft(heroesLeft, heroAdvMap):
 	for hero in heroesLeft:
 		heroDisplay = '{:<20}'.format(hero)
 		advStats = ''
-		for adv in heroAdvMap[hero.lower()]:
+		for adv in heroAdvMap[hero]:
 			advStats += '{:^20}'.format(adv) + "\t"
 		print(heroDisplay + "\t" + advStats)
 	print(str(len(heroesLeft)) + " heroes remaining.")
@@ -115,7 +119,7 @@ def performSort(heroesLeft, heroAdvMap, pickedHeroes):
 			break
 		sortValues = []
 		for hero in heroesLeft:
-			heroAdvantages = heroAdvMap[hero.lower()]
+			heroAdvantages = heroAdvMap[hero]
 			heroTuple = (hero, heroAdvantages)
 			sortValues.append(heroTuple)
 		if (sortOption in SORT_INPUTS[:2]):

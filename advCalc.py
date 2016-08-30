@@ -32,7 +32,7 @@ def pullDotabuff():
 	print("Dotabuff pull initiated")
 	heroCount = 0
 	heroLen = len(HEROES_LIST)
-	heroHtml = splitFileByNewline("herohtml.txt")
+	#heroHtml = splitFileByNewline("herohtml.txt")
 
 	dataStart = "<table class=\"sortable\">"
 	dataEnd = "</table>"
@@ -40,17 +40,15 @@ def pullDotabuff():
 	advCutoff = "<div class=\"bar bar-default\"><div class=\"segment segment-advantage\""
 	urlPre = "http://www.dotabuff.com/heroes/"
 	urlPost = "/matchups"
-	heroData = open("heromatch.txt", "a")
+	heroData = open("heromatch2.txt", "a")
 	for hero in HEROES_LIST:
 		heroUrl = urlPre + (hero.lower()).replace(" ", "-") + urlPost
-		#urlOut = requests.get(heroUrl)
-		#print(urlOut.text)
-		#while (urlOut.status_code == 429):
-	#		print("Blocked- sleeping")
-	#		time.sleep(60*60 + 30*random.random())
-	#		urlOut = requests.get(heroUrl)
-
-		urlText = heroHtml.pop(0)
+		urlOut = requests.get(heroUrl)
+		while (urlOut.status_code == 429):
+			print("Blocked- sleeping")
+			time.sleep(60*60 + 30*random.random())
+			urlOut = requests.get(heroUrl)
+		urlText = urlOut.text
 		if (urlText):
 			searchBlock = htmlSearcher(dataStart, dataEnd, urlText, False, True)[0]
 			advantages = htmlSearchAll(advStart, advCutoff, searchBlock)
@@ -64,9 +62,9 @@ def pullDotabuff():
 				entryTuple = (entryName, entryPercent)
 				advBlock.append(entryTuple)
 			heroData.write(str(advBlock) + "\n")
-
 		heroCount += 1
 		print(hero + "\t" + str(heroCount) + "/" + str(heroLen))
+		time.sleep(60*5 + 60*5*random.random())
 
 	heroData.close()
 
