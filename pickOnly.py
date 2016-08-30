@@ -1,7 +1,11 @@
-import sys
+import sys, os
+from os import remove, rename
 
 HERONAME_FILE = 'heroes.txt'
 MATCHES_FILE = 'heromatch.txt'
+SHORTHAND_FILE = 'shorthands.txt'
+DUPLICATE_FILE = 'duplicates.txt'
+TEMP_NAME = 'tmp.txt'
 
 def splitFileByNewline(filename):
     with open(filename) as f:
@@ -27,13 +31,14 @@ def startPicks(percentThreshold):
 	heroCount = 0
 	heroesLeft = []
 	for hero in HEROES_LIST:
-		print(hero)
 		heroDict[hero] = heroCount
 		heroAdvMap[hero] = []
 		heroesLeft.append(hero)
 		heroCount += 1
 	pickedHeroes = []
 	outputHeroesLeft(heroesLeft, heroAdvMap)
+	dups = formDuplicates()
+	shorts = formShorthands(dups[1])
 	while (len(pickedHeroes) < 5):
 		try:
 			print("\n")
@@ -48,10 +53,9 @@ def startPicks(percentThreshold):
 				else:
 					performSort(heroesLeft, heroAdvMap, pickedHeroes)
 			else:
-				pickedHero = prophetFix(pickedHero)
 				properHero = properFormatName(pickedHero)
 				print("\n**********\n")
-				if (properHero not in pickedHeroes): #CHANGE TO PROPERHERO
+				if (properHero not in pickedHeroes):
 					if properHero in heroesLeft:
 						heroesLeft.remove(properHero)
 					heroAdvs = matchupData[heroDict[properHero]]
@@ -60,6 +64,7 @@ def startPicks(percentThreshold):
 					for entry in heroAdvs:
 						entry = entry[1:]
 						entry = entry.replace('\'', '')
+						entry = entry.replace('\"', '')
 						entryTuple = entry.split(', ')
 						entryName = entryTuple[0]
 						entryName = prophetFix(entryName)
@@ -72,8 +77,7 @@ def startPicks(percentThreshold):
 					pickedHeroes.append(properHero)
 					pickedHeader = ''
 					for hero in pickedHeroes:
-						properHero = properFormatName(hero) #remove later
-						pickedHeader += '{:^20}'.format(properHero)
+						pickedHeader += '{:^20}'.format(hero)
 					print('{:<20}'.format("Hero") + pickedHeader)
 					outputHeroesLeft(heroesLeft, heroAdvMap)
 				else:
@@ -82,7 +86,52 @@ def startPicks(percentThreshold):
 				for hero in pickedHeroes:
 					print(hero)
 		except KeyError:
-			print("Invalid hero name '" + pickedHero + "', try again.")
+			print("Invalid hero name '" + pickedHero + "', add it to shorthands?.")
+			heroToMap = properFormatName(input("If so, enter a valid hero name: "))
+			if heroToMap in heroDict:
+				response = input("Adding shorthand '" + pickedHero + "' for hero '" + heroToMap + "'. Enter 'y' to confirm: ")
+				if (response == 'y'):
+					addShorthand(heroToMap, pickedHero, shorts[0])
+					print("Shorthand added.")
+				else:
+					print("Shorthand cancelled.")
+				response = input("Enter 'y' to pick '" + heroToMap + "': ")
+				if (response == 'y'):
+					#Find a more efficient approach to this...
+					properHero = heroToMap
+					print("\n**********\n")
+					if (properHero not in pickedHeroes):
+						if properHero in heroesLeft:
+							heroesLeft.remove(properHero)
+						heroAdvs = matchupData[heroDict[properHero]]
+						heroAdvs = heroAdvs[1:-1]
+						heroAdvs = heroAdvs.split('), ')
+						for entry in heroAdvs:
+							entry = entry[1:]
+							entry = entry.replace('\'', '')
+							entry = entry.replace('\"', '')
+							entryTuple = entry.split(', ')
+							entryName = entryTuple[0]
+							entryName = prophetFix(entryName)
+							entryTuple[1] = entryTuple[1].replace(')', '')
+							entryAdv = float(entryTuple[1])
+							heroAdvMap[entryName].append(entryAdv)
+							if (entryAdv > percentThreshold):
+								if (entryName in heroesLeft):
+									heroesLeft.remove(entryName)
+						pickedHeroes.append(properHero)
+						pickedHeader = ''
+						for hero in pickedHeroes:
+							pickedHeader += '{:^20}'.format(hero)
+						print('{:<20}'.format("Hero") + pickedHeader)
+						outputHeroesLeft(heroesLeft, heroAdvMap)
+					else:
+						print("Hero already marked as picked.")
+					print("\n\nPicked heroes:")
+					for hero in pickedHeroes:
+						print(hero)
+			else:
+				print("Invalid hero name '" + pickedHero + "', not adding to shorthands. Please enter a real name.")
 	performSort(heroesLeft, heroAdvMap, pickedHeroes)
 
 def properFormatName(heroname):
@@ -94,13 +143,10 @@ def properFormatName(heroname):
 			properHero += heroname[i]
 	properHero = properHero.replace("Of", "of")
 	properHero = properHero.replace("The", "the")
-	properHero = properHero.replace("Natures", "Nature's")
-	return properHero
+	return prophetFix(properHero)
 
 def prophetFix(heroname):
-	if (heroname == '\"Natures Prophet\"'):
-		return "Nature\'s Prophet"
-	return heroname
+	return heroname.replace("Natures", "Nature's")
 
 def outputHeroesLeft(heroesLeft, heroAdvMap):
 	for hero in heroesLeft:
@@ -145,8 +191,7 @@ def performSort(heroesLeft, heroAdvMap, pickedHeroes):
 					sortValues = sorted(sortValues, key=lambda curList: (curList[1])[(sortOption - 1)])
 					pickedHeader = ''
 					for hero in pickedHeroes:
-						properHero = properFormatName(hero)
-						pickedHeader += '{:<20}'.format(properHero)
+						pickedHeader += '{:<20}'.format(hero)
 					print('{:<20}'.format("Hero") + pickedHeader)
 					for sortEntry in sortValues:
 						heroDisplay = '{:^20}'.format(sortEntry[0])
@@ -158,6 +203,52 @@ def performSort(heroesLeft, heroAdvMap, pickedHeroes):
 					print("Insufficient number of picked heroes to sort by column '" + str(sortOption) + "'")
 			else:
 				print("Invalid sorting column '" + sortOption + "'")
+
+def updateFile(lines, filename):
+	tmpFile = open(TEMP_NAME, 'w')
+	for line in lines:
+		tmpFile.write((line + '\n'))
+	tmpFile.close()
+	os.remove(filename)
+	os.rename(TEMP_NAME, filename)
+
+def formDictFromCommaFile(filename, duplicates = {}):
+	lines = splitFileByNewline(filename)
+	commaLists = []
+	for line in lines:
+		lineList = line.split(',')
+		if (len(lineList) != 1):
+			commaLists.append(lineList)
+	curDict = {}
+	for entry in commaLists:
+		listKeys = entry[1:]
+		listVal = entry[0]
+		for curKey in listKeys:
+			if curKey not in duplicates:
+				curDict[curKey] = listVal
+	return (lines, curDict)
+
+def formDuplicates():
+	return formDictFromCommaFile(DUPLICATE_FILE)
+
+def formShorthands(duplicatesDict):
+	return formDictFromCommaFile(SHORTHAND_FILE, duplicatesDict)
+
+def addShorthand(heroname, shorthand, shorthandLines):
+	newLines = []
+	for line in shorthandLines:
+		lineSplit = line.split(',')
+		name = lineSplit[0]
+		values = [val.replace(' ', '') for val in lineSplit[1:]]
+		newline = name
+		if ((heroname == name) and (shorthand not in values)):
+			line += ", " + shorthand
+		newLines.append(line)
+	print(newLines)
+	print("******************")
+	updateFile(newLines, SHORTHAND_FILE)
+
+
 
 
 if __name__ == '__main__':
