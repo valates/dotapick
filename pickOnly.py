@@ -50,7 +50,6 @@ def formatAdv():
 	save_obj(heroAdvDict, ADV_PICKLE_NAME)
 
 def startPicks(percentThreshold):
-	#now, load obj gets dictionary with all heronames and values are lists
 	heroAdvantageDict = load_obj(ADV_PICKLE_NAME)
 
 	heroAdvMap = {}
@@ -86,30 +85,7 @@ def startPicks(percentThreshold):
 					properHero = shorthandDict[pickedHero]
 				else:
 					properHero = properFormatName(pickedHero)
-				print("\n**********\n")
-				if (properHero not in pickedHeroes):
-					if properHero in heroesLeft:
-						heroesLeft.remove(properHero)
-					heroAdvs = heroAdvantageDict[properHero]
-					for entryTuple in heroAdvs:
-						entryName = entryTuple[0]
-						entryName = prophetFix(entryName)
-						entryAdv = float(entryTuple[1])
-						heroAdvMap[entryName].append(entryAdv)
-						if (entryAdv > percentThreshold):
-							if (entryName in heroesLeft):
-								heroesLeft.remove(entryName)
-					pickedHeroes.append(properHero)
-					pickedHeader = ''
-					for hero in pickedHeroes:
-						pickedHeader += '{:^20}'.format(hero)
-					print('{:<20}'.format("Hero") + pickedHeader)
-					outputHeroesLeft(heroesLeft, heroAdvMap)
-				else:
-					print("Hero already marked as picked.")
-				print("\n\nPicked heroes:")
-				for hero in pickedHeroes:
-					print(hero)
+				properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap = performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold)
 		except KeyError:
 			print("Invalid hero name '" + pickedHero + "', add it to shorthands?")
 			heroToMap = properFormatName(input("If so, enter a valid hero name: "))
@@ -124,33 +100,38 @@ def startPicks(percentThreshold):
 				response = input("Enter 'y' to pick '" + heroToMap + "': ")
 				if (response == 'y'):
 					properHero = heroToMap
-					print("\n**********\n")
-					if (properHero not in pickedHeroes):
-						if properHero in heroesLeft:
-							heroesLeft.remove(properHero)
-						heroAdvs = heroAdvantageDict[properHero]
-						for entryTuple in heroAdvs:
-							entryName = entryTuple[0]
-							entryName = prophetFix(entryName)
-							entryAdv = float(entryTuple[1])
-							heroAdvMap[entryName].append(entryAdv)
-							if (entryAdv > percentThreshold):
-								if (entryName in heroesLeft):
-									heroesLeft.remove(entryName)
-						pickedHeroes.append(properHero)
-						pickedHeader = ''
-						for hero in pickedHeroes:
-							pickedHeader += '{:^20}'.format(hero)
-						print('{:<20}'.format("Hero") + pickedHeader)
-						outputHeroesLeft(heroesLeft, heroAdvMap)
-					else:
-						print("Hero already marked as picked.")
-					print("\n\nPicked heroes:")
-					for hero in pickedHeroes:
-						print(hero)
+					properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap = performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold)
 			else:
 				print("Invalid hero name '" + heroToMap + "', not adding to shorthands. Please enter a real name.")
 	performSort(heroesLeft, heroAdvMap, pickedHeroes)
+
+def performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold):
+	print("\n**********\n")
+	if (properHero not in pickedHeroes):
+		if properHero in heroesLeft:
+			heroesLeft.remove(properHero)
+			heroAdvs = heroAdvantageDict[properHero]
+			for entryTuple in heroAdvs:
+				entryName = entryTuple[0]
+				entryName = prophetFix(entryName)
+				entryAdv = float(entryTuple[1])
+				heroAdvMap[entryName].append(entryAdv)
+				if (entryAdv > percentThreshold):
+					if (entryName in heroesLeft):
+						heroesLeft.remove(entryName)
+			pickedHeroes.append(properHero)
+			pickedHeader = ''
+			for hero in pickedHeroes:
+				pickedHeader += '{:^20}'.format(hero)
+			print('{:<20}'.format("Hero") + pickedHeader)
+			outputHeroesLeft(heroesLeft, heroAdvMap)
+
+		else:
+			print("Hero already marked as picked.")
+		print("\n\nPicked heroes:")
+		for hero in pickedHeroes:
+			print(hero)
+	return properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap
 
 def outputHeroesLeft(heroesLeft, heroAdvMap):
 	for hero in heroesLeft:
