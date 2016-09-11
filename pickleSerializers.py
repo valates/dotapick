@@ -2,10 +2,10 @@
 
 import pickle
 
-def save_obj(obj, name ):
-    with open('obj/'+ name + '.pkl', 'wb') as f:
+def save_obj(obj, filename):
+    with open('obj/'+ filename + '.pkl', 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
-def load_obj(name ):
-    with open('obj/' + name + '.pkl', 'rb') as f:
+def load_obj(filename):
+    with open('obj/' + filename + '.pkl', 'rb') as f:
         return pickle.load(f)

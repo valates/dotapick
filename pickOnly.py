@@ -1,10 +1,11 @@
-import sys, fileOperators, nameFormater, constantNames, shorthand, duplicate, pickleSerializers
+import sys, fileOperators, nameFormater, constantNames, shorthand, duplicate, pickleSerializers, htmlOperators
 from fileOperators import *
 from nameFormater import *
 from constantNames import *
 from shorthand import *
 from duplicate import *
 from pickleSerializers import *
+from htmlOperators import htmlSearcher, htmlSearchAll
 
 #TODO- CHANGE APPEND, REMOVE FOR LINE UPDATING TO JUST KEEP TRACK OF LINE NUMBER AND CHANGE VALUE OF THAT LIST ENTRY
 
@@ -14,21 +15,53 @@ def main(args):
 	argc = len(sys.argv)
 	argv = sys.argv
 	percentThreshold = 2.0
-	if ((argc == 3) and (argv[1].lower() == "setpercent")):
-		percentThreshold = float(argv[2])
-	startPicks(percentThreshold)
+	if ((argc == 2) and (argv[1].lower() == "formathtml")):
+		formatAdv()
+	else:
+		if ((argc == 3) and (argv[1].lower() == "setpercent")):
+			percentThreshold = float(argv[2])
+		startPicks(percentThreshold)
+
+def formatAdv():
+	heroLen = len(HEROES_LIST)
+	heroHtml = splitFileByNewline("herohtml")
+	heroAdvDict = {}
+
+	dataStart = "<table class=\"sortable\">"
+	dataEnd = "</table>"
+	advStart = "<td class=\"cell-xlarge\">"
+	advCutoff = "<div class=\"bar bar-default\"><div class=\"segment segment-advantage\""
+	for hero in HEROES_LIST:
+		urlText = heroHtml.pop(0)
+		if (urlText):
+			searchBlock = htmlSearcher(dataStart, dataEnd, urlText, False, True)[0]
+			advantages = htmlSearchAll(advStart, advCutoff, searchBlock)
+			advBlock = []
+			for entry in advantages:
+				entryName = entry[:-5]
+				entryPercent = entry[-5:-1]
+				if (entryName[-1] == '-'):
+					entryName = entryName[:-1]
+					entryPercent = '-' + entryPercent
+				entryTuple = (entryName, entryPercent)
+				advBlock.append(entryTuple)
+			heroAdvDict[hero] = advBlock
+		print('{:<20}'.format(hero) + "\t" + str(heroLen - len(heroHtml)) + "/" + str(heroLen))
+	save_obj(heroAdvDict, ADV_PICKLE_NAME)
 
 def startPicks(percentThreshold):
-	matchupData = splitFileByNewline(MATCHES_FILE)
-	heroDict = {}
+	#now, load obj gets dictionary with all heronames and values are lists
+	heroAdvantageDict = load_obj(ADV_PICKLE_NAME)
+
 	heroAdvMap = {}
 	heroCount = 0
 	heroesLeft = []
 	for hero in HEROES_LIST:
-		heroDict[hero] = heroCount
 		heroAdvMap[hero] = []
 		heroesLeft.append(hero)
 		heroCount += 1
+
+
 	pickedHeroes = []
 	outputHeroesLeft(heroesLeft, heroAdvMap)
 	dups = formDuplicates()
@@ -37,7 +70,8 @@ def startPicks(percentThreshold):
 	while (len(pickedHeroes) < 5):
 		try:
 			print("\n")
-			pickedHero = input("Enter picked hero, 'sort,' to sort current, or 'q' to quit: ").lower()
+			pickedHero = input("Enter picked hero, 'sort,' to sort current, or 'q' to quit: ").lower() #CHANGE LATER WHEN SHIFT BACK TO 3.3
+			print(pickedHero)
 			if (pickedHero == KILL_COMMAND):
 				exit()
 			elif (pickedHero in SORT_INPUTS):
@@ -48,7 +82,6 @@ def startPicks(percentThreshold):
 				else:
 					performSort(heroesLeft, heroAdvMap, pickedHeroes)
 			else:
-				print(pickedHero)
 				if (pickedHero in shorthandDict):
 					properHero = shorthandDict[pickedHero]
 				else:
@@ -57,17 +90,10 @@ def startPicks(percentThreshold):
 				if (properHero not in pickedHeroes):
 					if properHero in heroesLeft:
 						heroesLeft.remove(properHero)
-					heroAdvs = matchupData[heroDict[properHero]]
-					heroAdvs = heroAdvs[1:-1]
-					heroAdvs = heroAdvs.split('), ')
-					for entry in heroAdvs:
-						entry = entry[1:]
-						entry = entry.replace('\'', '')
-						entry = entry.replace('\"', '')
-						entryTuple = entry.split(', ')
+					heroAdvs = heroAdvantageDict[properHero]
+					for entryTuple in heroAdvs:
 						entryName = entryTuple[0]
 						entryName = prophetFix(entryName)
-						entryTuple[1] = entryTuple[1].replace(')', '')
 						entryAdv = float(entryTuple[1])
 						heroAdvMap[entryName].append(entryAdv)
 						if (entryAdv > percentThreshold):
@@ -87,7 +113,7 @@ def startPicks(percentThreshold):
 		except KeyError:
 			print("Invalid hero name '" + pickedHero + "', add it to shorthands?")
 			heroToMap = properFormatName(input("If so, enter a valid hero name: "))
-			if heroToMap in heroDict:
+			if heroToMap in heroAdvantageDict:
 				response = input("Adding shorthand '" + pickedHero + "' for hero '" + heroToMap + "'. Enter 'y' to confirm: ")
 				if (response == 'y'):
 					addShorthand(heroToMap, pickedHero, shorts[0])
@@ -97,23 +123,15 @@ def startPicks(percentThreshold):
 					print("Shorthand cancelled.")
 				response = input("Enter 'y' to pick '" + heroToMap + "': ")
 				if (response == 'y'):
-					#Find a more efficient approach to this...
 					properHero = heroToMap
 					print("\n**********\n")
 					if (properHero not in pickedHeroes):
 						if properHero in heroesLeft:
 							heroesLeft.remove(properHero)
-						heroAdvs = matchupData[heroDict[properHero]]
-						heroAdvs = heroAdvs[1:-1]
-						heroAdvs = heroAdvs.split('), ')
-						for entry in heroAdvs:
-							entry = entry[1:]
-							entry = entry.replace('\'', '')
-							entry = entry.replace('\"', '')
-							entryTuple = entry.split(', ')
+						heroAdvs = heroAdvantageDict[properHero]
+						for entryTuple in heroAdvs:
 							entryName = entryTuple[0]
 							entryName = prophetFix(entryName)
-							entryTuple[1] = entryTuple[1].replace(')', '')
 							entryAdv = float(entryTuple[1])
 							heroAdvMap[entryName].append(entryAdv)
 							if (entryAdv > percentThreshold):

@@ -7,6 +7,9 @@ DUPLICATE_RESET_POINT = 'duplicatesBackup.txt'
 TEMP_NAME = 'tmp.txt'
 SORT_INPUTS = ['sum', 'average', '1', '2', '3', '4', '5']
 KILL_COMMAND = "q"
+ADV_PICKLE_NAME = "heromatchups"
+
+
 """ Makes no sense to add a shorthand for every single hero. """
 KILL_ALL = '*'
 SHORTHAND_BLACKLIST = [KILL_ALL]
