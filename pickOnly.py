@@ -1,31 +1,22 @@
-import sys, os
-from os import remove, rename
+import sys, fileOperators, nameFormater, constantNames, shorthand, duplicate, pickleSerializers
+from fileOperators import *
+from nameFormater import *
+from constantNames import *
+from shorthand import *
+from duplicate import *
+from pickleSerializers import *
 
-HERONAME_FILE = 'heroes.txt'
-MATCHES_FILE = 'heromatch.txt'
-SHORTHAND_FILE = 'shorthands.txt'
-DUPLICATE_FILE = 'duplicates.txt'
-TEMP_NAME = 'tmp.txt'
-
-def splitFileByNewline(filename):
-    with open(filename) as f:
-        lines = f.read().splitlines()
-    return lines
+#TODO- CHANGE APPEND, REMOVE FOR LINE UPDATING TO JUST KEEP TRACK OF LINE NUMBER AND CHANGE VALUE OF THAT LIST ENTRY
 
 HEROES_LIST = splitFileByNewline(HERONAME_FILE)
-SORT_INPUTS = ['sum', 'average', '1', '2', '3', '4', '5']
-KILL_COMMAND = 'q'
-""" Makes no sense to add a shorthand for every single hero. """
-KILL_ALL = '*'
-SHORTHAND_BLACKLIST = [KILL_ALL]
 
 def main(args):
-    argc = len(sys.argv)
-    argv = sys.argv[1:]
-    percentThreshold = 2.0
-    if (argc == 2):
-    	percentThreshold = float(argv[0])
-    startPicks(percentThreshold)
+	argc = len(sys.argv)
+	argv = sys.argv
+	percentThreshold = 2.0
+	if ((argc == 3) and (argv[1].lower() == "setpercent")):
+		percentThreshold = float(argv[2])
+	startPicks(percentThreshold)
 
 def startPicks(percentThreshold):
 	matchupData = splitFileByNewline(MATCHES_FILE)
@@ -46,7 +37,7 @@ def startPicks(percentThreshold):
 	while (len(pickedHeroes) < 5):
 		try:
 			print("\n")
-			pickedHero = input("Enter picked hero, \"sort\" to sort current, or \"" + KILL_COMMAND + "\" to quit: ").lower()
+			pickedHero = input("Enter picked hero, 'sort,' to sort current, or 'q' to quit: ").lower()
 			if (pickedHero == KILL_COMMAND):
 				exit()
 			elif (pickedHero in SORT_INPUTS):
@@ -57,6 +48,7 @@ def startPicks(percentThreshold):
 				else:
 					performSort(heroesLeft, heroAdvMap, pickedHeroes)
 			else:
+				print(pickedHero)
 				if (pickedHero in shorthandDict):
 					properHero = shorthandDict[pickedHero]
 				else:
@@ -142,20 +134,6 @@ def startPicks(percentThreshold):
 				print("Invalid hero name '" + heroToMap + "', not adding to shorthands. Please enter a real name.")
 	performSort(heroesLeft, heroAdvMap, pickedHeroes)
 
-def properFormatName(heroname):
-	properHero = ''
-	for i in range(0, len(heroname)):
-		if ((i == 0) or (heroname[(i - 1)] == ' ') or (heroname[(i - 1)] == '-')):
-			properHero += heroname[i].capitalize()
-		else:
-			properHero += heroname[i]
-	properHero = properHero.replace("Of", "of")
-	properHero = properHero.replace("The", "the")
-	return prophetFix(properHero)
-
-def prophetFix(heroname):
-	return heroname.replace("Natures", "Nature's")
-
 def outputHeroesLeft(heroesLeft, heroAdvMap):
 	for hero in heroesLeft:
 		heroDisplay = '{:<20}'.format(hero)
@@ -211,84 +189,6 @@ def performSort(heroesLeft, heroAdvMap, pickedHeroes):
 					print("Insufficient number of picked heroes to sort by column '" + str(sortOption) + "'")
 			else:
 				print("Invalid sorting column '" + sortOption + "'")
-
-def updateFile(lines, filename):
-	tmpFile = open(TEMP_NAME, 'w')
-	for line in lines:
-		tmpFile.write((line + '\n'))
-	tmpFile.close()
-	os.remove(filename)
-	os.rename(TEMP_NAME, filename)
-
-def formDictFromCommaFile(filename, duplicates = {}):
-	lines = splitFileByNewline(filename)
-	commaLists = []
-	for line in lines:
-		lineList = line.split(', ')
-		if (len(lineList) != 1):
-			commaLists.append(lineList)
-	curDict = {}
-	for entry in commaLists:
-		listKeys = entry[1:]
-		listVal = entry[0]
-		for curKey in listKeys:
-			if curKey not in duplicates:
-				curDict[curKey] = listVal
-	return (lines, curDict)
-
-def formDuplicates():
-	return formDictFromCommaFile(DUPLICATE_FILE)
-
-def formShorthands(duplicatesDict):
-	return formDictFromCommaFile(SHORTHAND_FILE, duplicatesDict)
-
-def addShorthand(heroname, shorthand, shorthandLines):
-	newLines = []
-	for line in shorthandLines:
-		lineSplit = line.split(', ')
-		name = lineSplit[0]
-		values = lineSplit[1:]
-		newline = name
-		if ((heroname == name) and (shorthand not in values)):
-			line += ", " + shorthand
-		newLines.append(line)
-	updateFile(newLines, SHORTHAND_FILE)
-	return newLines
-
-def addShorthands(shorthandDict, shorthandLines, heroAdvMap):
-	response = 'y'
-	while(response == 'y'):
-		heroExist = False
-		while (not heroExist):
-			heroname = input("Enter heroname: ")
-			if (heroname in shorthandDict):
-				heroname = shorthandDict[heroname]
-			else:
-				heroname = properFormatName(heroname)
-			heroExist = heroname in heroAdvMap
-			if heroExist is False:
-				print("No such hero '" + heroname + "'. Try again.")
-		shorthand = input("Enter shorthand (will be forced all lowercase): ").lower()
-		if (shorthand not in SHORTHAND_BLACKLIST):
-			response = input("Adding shorthand '" + shorthand + "' for hero '" + heroname + "'. Enter 'y' to confirm: ")
-			if (response == 'y'):
-				shorthandLines = addShorthand(heroname, shorthand, shorthandLines)
-				shorthandDict[shorthand] = heroname
-				print(shorthandDict)
-				print("Shorthand added.")
-			else:
-				print("Shorthand cancelled.")
-		else:
-			print("Sorry, that shorthand is blacklisted. Don't be naughty.")
-		response = input("Enter 'y' to continue adding shorthands. Any other input to exit: ")
-	return (shorthandDict, shorthandLines)
-
-def resetShorthands(shorthandDict, shorthandLines):
-	shorthandDict = {}
-	shorthandLines = HEROES_LIST
-	updateFile(HEROES_LIST, SHORTHAND_FILE)
-	return (shorthandDict, shorthandLines)
-
 
 if __name__ == '__main__':
     main(sys.argv)
