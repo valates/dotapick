@@ -51,16 +51,11 @@ def formatAdv():
 
 def startPicks(percentThreshold):
 	heroAdvantageDict = load_obj(ADV_PICKLE_NAME)
-
 	heroAdvMap = {}
-	heroCount = 0
 	heroesLeft = []
 	for hero in HEROES_LIST:
 		heroAdvMap[hero] = []
 		heroesLeft.append(hero)
-		heroCount += 1
-
-
 	pickedHeroes = []
 	outputHeroesLeft(heroesLeft, heroAdvMap)
 	dups = formDuplicates()
@@ -70,7 +65,6 @@ def startPicks(percentThreshold):
 		try:
 			print("\n")
 			pickedHero = input("Enter picked hero, 'sort,' to sort current, or 'q' to quit: ").lower() #CHANGE LATER WHEN SHIFT BACK TO 3.3
-			print(pickedHero)
 			if (pickedHero == KILL_COMMAND):
 				exit()
 			elif (pickedHero in SORT_INPUTS):
@@ -80,6 +74,11 @@ def startPicks(percentThreshold):
 					print("Cannot sort without any advantages. Pick a hero first.")
 				else:
 					performSort(heroesLeft, heroAdvMap, pickedHeroes)
+			elif(pickedHero[:3].lower() == "ban"):
+				pickedHero = properFormatName(pickedHero.split(" ")[1])
+				heroesLeft.remove(pickedHero)
+				print(pickedHero + " banned.")
+				outputHeroesLeft(heroesLeft, heroAdvMap)
 			else:
 				if (pickedHero in shorthandDict):
 					properHero = shorthandDict[pickedHero]
