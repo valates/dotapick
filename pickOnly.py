@@ -1,13 +1,16 @@
-import sys, fileOperators, nameFormater, constantNames, shorthand, duplicate, pickleSerializers, htmlOperators
+import sys, fileOperators, nameFormater, constantNames, shorthand, pickleSerializers, htmlOperators
 from fileOperators import *
 from nameFormater import *
 from constantNames import *
 from shorthand import *
-from duplicate import *
 from pickleSerializers import *
 from htmlOperators import htmlSearcher, htmlSearchAll
 
-#TODO- CHANGE APPEND, REMOVE FOR LINE UPDATING TO JUST KEEP TRACK OF LINE NUMBER AND CHANGE VALUE OF THAT LIST ENTRY
+#TODO help option output from file contents
+#TODO comment functions
+
+#kotl pick not work after zeus, huskar
+
 
 HEROES_LIST = splitFileByNewline(HERONAME_FILE)
 
@@ -15,8 +18,15 @@ def main(args):
 	argc = len(sys.argv)
 	argv = sys.argv
 	percentThreshold = 2.0
-	if ((argc == 2) and (argv[1].lower() == "formathtml")):
-		formatAdv()
+	if (argc == 2):
+		if (argv[1].lower() == "--formathtml"):
+			formatAdv()
+		if (argv[1].lower() == "--reset"):
+			resetShorthands()
+			print("Shorthands reset. Printing resulting dictionary: ")
+			print(load_obj(SHORTHAND_PICKLE_NAME))
+	elif ((argc == 4) and (argv[1].lower() == "--addshort")):
+		addShorthand(properFormatName(argv[2]), argv[3], shortDict)
 	else:
 		if ((argc == 3) and (argv[1].lower() == "setpercent")):
 			percentThreshold = float(argv[2])
@@ -24,9 +34,8 @@ def main(args):
 
 def formatAdv():
 	heroLen = len(HEROES_LIST)
-	heroHtml = splitFileByNewline("herohtml")
+	heroHtml = splitFileByNewline("data/herohtml")
 	heroAdvDict = {}
-
 	dataStart = "<table class=\"sortable\">"
 	dataEnd = "</table>"
 	advStart = "<td class=\"cell-xlarge\">"
@@ -48,23 +57,21 @@ def formatAdv():
 			heroAdvDict[hero] = advBlock
 		print('{:<20}'.format(hero) + "\t" + str(heroLen - len(heroHtml)) + "/" + str(heroLen))
 	save_obj(heroAdvDict, ADV_PICKLE_NAME)
+	formShorthands()
 
 def startPicks(percentThreshold):
 	heroAdvantageDict = load_obj(ADV_PICKLE_NAME)
+	shortDict = load_obj(SHORTHAND_PICKLE_NAME)
 	heroAdvMap = {}
 	heroesLeft = []
+	pickedHeroes = []
 	for hero in HEROES_LIST:
 		heroAdvMap[hero] = []
 		heroesLeft.append(hero)
-	pickedHeroes = []
 	outputHeroesLeft(heroesLeft, heroAdvMap)
-	dups = formDuplicates()
-	shorts = formShorthands(dups[1])
-	shorthandDict = shorts[1]
 	while (len(pickedHeroes) < 5):
-		try:
 			print("\n")
-			pickedHero = input("Enter picked hero, 'sort,' to sort current, or 'q' to quit: ").lower() #CHANGE LATER WHEN SHIFT BACK TO 3.3
+			pickedHero = input("Enter picked hero, 'sort,' to sort current, or 'q' to quit: ").lower()
 			if (pickedHero == KILL_COMMAND):
 				exit()
 			elif (pickedHero in SORT_INPUTS):
@@ -74,34 +81,45 @@ def startPicks(percentThreshold):
 					print("Cannot sort without any advantages. Pick a hero first.")
 				else:
 					performSort(heroesLeft, heroAdvMap, pickedHeroes)
-			elif(pickedHero[:3].lower() == "ban"):
-				pickedHero = properFormatName(pickedHero.split(" ")[1])
+			elif(pickedHero[:3].lower() == BAN_COMMAND):
+				pickedHero = properFormatName(pickedHero[3:])
+				print(pickedHero)
 				heroesLeft.remove(pickedHero)
 				print(pickedHero + " banned.")
 				outputHeroesLeft(heroesLeft, heroAdvMap)
 			else:
-				if (pickedHero in shorthandDict):
-					properHero = shorthandDict[pickedHero]
+				if (pickedHero in shortDict):
+					properHero = shortDict[pickedHero]
 				else:
 					properHero = properFormatName(pickedHero)
-				properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap = performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold)
-		except KeyError:
-			print("Invalid hero name '" + pickedHero + "', add it to shorthands?")
-			heroToMap = properFormatName(input("If so, enter a valid hero name: "))
-			if heroToMap in heroAdvantageDict:
-				response = input("Adding shorthand '" + pickedHero + "' for hero '" + heroToMap + "'. Enter 'y' to confirm: ")
-				if (response == 'y'):
-					addShorthand(heroToMap, pickedHero, shorts[0])
-					shorthandDict[pickedHero] = heroToMap
-					print("Shorthand added.")
-				else:
-					print("Shorthand cancelled.")
-				response = input("Enter 'y' to pick '" + heroToMap + "': ")
-				if (response == 'y'):
-					properHero = heroToMap
-					properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap = performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold)
-			else:
-				print("Invalid hero name '" + heroToMap + "', not adding to shorthands. Please enter a real name.")
+				if (properHero in HEROES_LIST):
+					properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap = performAdvantageSearch(properHero, 
+																												pickedHeroes, 
+																												heroesLeft, 
+																												heroAdvantageDict, 
+																												heroAdvMap, 
+																												percentThreshold)
+				else:	
+					print("Invalid hero name '" + pickedHero + "', add it to shorthands?")
+					heroToMap = properFormatName(input("If so, enter a valid hero name: "))
+					if heroToMap in HEROES_LIST:
+						response = input("Adding shorthand '" + pickedHero + "' for hero '" + heroToMap + "'. Enter 'y' to confirm: ")
+						if (response == 'y'):
+							addShorthand(heroToMap, pickedHero, shortDict)
+							print("Shorthand added.")
+						else:
+							print("Shorthand cancelled.")
+						response = input("Enter 'y' to pick " + heroToMap + ": ")
+						if (response == 'y'):
+							properHero = heroToMap
+							properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap = performAdvantageSearch(properHero, 
+																														pickedHeroes, 
+																														heroesLeft, 
+																														heroAdvantageDict, 
+																														heroAdvMap, 
+																														percentThreshold)
+					else:
+						print("Invalid hero name '" + heroToMap + "', not adding to shorthands. Please enter a real name.")
 	performSort(heroesLeft, heroAdvMap, pickedHeroes)
 
 def performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold):
@@ -161,7 +179,7 @@ def performSort(heroesLeft, heroAdvMap, pickedHeroes):
 				for value in entryList:
 					entrySum += value
 				if (sortOption == SORT_INPUTS[1]):
-					entrySum /= 5
+					entrySum /= len(pickedHeroes)
 				sumTuple = (entryName, entrySum)
 				sumList.append(sumTuple)
 			sumList = sorted(sumList, key=lambda curSum: curSum[1])

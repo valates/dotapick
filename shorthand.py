@@ -1,55 +1,43 @@
-import fileOperators, nameFormater, constantNames, duplicate
+import fileOperators, nameFormater, constantNames, pickleSerializers
 from fileOperators import *
 from nameFormater import *
 from constantNames import *
-from duplicate import *
+from pickleSerializers import *
 
-def formShorthands(duplicatesDict, shorthandReset = None):
-	if shorthandReset:
-		return formDictFromCommaFile(shorthandReset, duplicatesDict)
-	return formDictFromCommaFile(SHORTHAND_FILE, duplicatesDict)
+""" Creates a dictionary from the file containing all preset hero shorthands
+	located in /data/shorthands. Saves the dictionary to a file and returns
+	the dictionary. """
+def formShorthands():
+	shortDict = formDictFromCommaFile(SHORTHAND_FILE)
+	save_obj(shortDict, SHORTHAND_PICKLE_NAME)
+	return shortDict
 
-def addShorthand(heroname, shorthand, shortLines, shortDict, dupLines, dupDict):
-	if shorthand not in shortDict and shorthand not in dupDict:
-		for line in shortLines:
-			lineSplit = line.split(', ')
-			name = lineSplit[0]
-			values = lineSplit[1:]
-			if ((heroname == name) and (shorthand not in values)):
-				newline = line + ", " + shorthand
-				shortLines.remove(line)
-				shortLines.append(newline)
-				break
-		updateFile(shortLines, SHORTHAND_FILE)
-	else:
-		if shorthand in shortDict:
-			heroToRemove = shortDict[shorthand]
-			shortLines, shortDict, dupLines, dupDict = removeShorthand(shorthand, heroToRemove, shortLines, shortDict, dupLines, dupDict)
-			dupLines, dupDict = checkDuplicate(shorthand, heroname, False, dupLines, dupDict)
-		dupLines, dupDict = checkDuplicate(shorthand, heroname, False, dupDict, dupLines)
-	return shortLines, shortDict, dupLines, dupDict
-
-def removeShorthand(shorthand, heroname, shortLines, shortDict, dupLines, dupDict):
+""" Associates the string SHORTHAND with the hero with string name HERONAME by adding the
+	key, value pair to the dictionary of shorthands, SHORTDICT. Returns the resulting dictionary
+	if the key was not already present. Returns SHORTDICT untouched if key SHORTHAND is present. """
+def addShorthand(heroname, shorthand, shortDict):
 	if shorthand not in shortDict:
-		lenDuplicatesPreRemoval = len(dupLines)
-		dupLines, dupDict = checkDuplicate(shorthand, heroname, True, dupLines, dupDict)
-		if (lenDupLines != lenDupPre):
-			shortLines, shortDict, dupLines, dupDict = addShorthand(heroname, shorthand, shortLines, shortDict, dupLines, dupDict)
-			updateFile(shortLines, SHORTHAND_FILE)
+		shortDict[shorthand] = heroname
+		save_obj(shortDict, SHORTHAND_PICKLE_NAME)
+	else:
+		print("Shorthand '" + shorthand + "' already present.")
+	return shortDict
+
+""" Removes the association between the string SHORTHAND and the hero with string name HERONAME 
+	by removing the key from the dictionary, SHORTDICT. Returns the resulting dictionary
+	if the key was present. Returns SHORTDICT untouched if key SHORTHAND is not present. """
+def removeShorthand(shorthand, heroname, shortDict):
+	if shorthand in shortDict:
+		print("Shorthand '" + shorthand + "' not present.")
 	else:
 		del shortDict[shorthand]
-		for line in shortLines:
-			splitLine = line.split(', ')
-			if (splitLine[0] == heroname):
-				shortLines.remove(line)
-				newLine = shortLines[0]
-				for entry in shortLines[1:]:
-					newLine += (', ' + entry)
-				dupLines.append(newLine)
-		updateFile(shortLines, SHORTHAND_FILE)
-	return shortLines, shortDict, dupLines, dupDict
+		save_obj(shortDict, SHORTHAND_PICKLE_NAME)
+	return shortDict
 
-def addShorthands(shortLines, shortDict, dupLines, dupDict, heroAdvMap):
+""" Allows the user to add multiple shorthands to the dictionary of shorthand to heroname key, value pairs.
+	Checks the hero is present in list HEROLIST of all string names for all heroes. Returns the dictionary 
+	SHORTDICT after user has finished associating keys with values contained in HEROLIST. """
+def addShorthands(shortDict, heroList):
 	""" The first search for a key in shortDict is done so that the created shorthands are searched. 
 		You can created a shorthand "a" then use that shorthand to add other ones faster."""
 	response = 'y'
@@ -61,30 +49,30 @@ def addShorthands(shortLines, shortDict, dupLines, dupDict, heroAdvMap):
 				heroname = shortDict[heroname]
 			else:
 				heroname = properFormatName(heroname)
-			heroExist = heroname in heroAdvMap
-			if heroExist is False:
+			heroExist = heroname in heroList
+			if heroname not in heroList:
 				print("No such hero '" + heroname + "'. Try again.")
-		shorthand = input("Enter shorthand (will be forced all lowercase): ").lower()
+		shorthand = input("Enter shorthand: ")
 		if (shorthand not in SHORTHAND_BLACKLIST):
 			response = input("Adding shorthand '" + shorthand + "' for hero '" + heroname + "'. Enter 'y' to confirm: ")
 			if (response == 'y'):
-				shortLines = addShorthand(heroname, shorthand, shortLines, shortDict, dupLines, dupDict)
-				shortDict[shorthand] = heroname
-				print(shortDict)
+				shortDict = addShorthand(heroname, shorthand, shortDict)
 				print("Shorthand added.")
 			else:
 				print("Shorthand cancelled.")
 		else:
 			print("Sorry, that shorthand is blacklisted. Don't be naughty.")
 		response = input("Enter 'y' to continue adding shorthands. Any other input to exit: ")
-	return shortLines, shortDict
+	return shortDict
 
-def resetShorthands(shorthandDict, shorthandLines, duplicateDict, duplicateLines, factoryZero = False):
+
+""" Creates a new shorthand dictionary and returns it to the caller. If boolean FACTORYZERO
+	is True, a blank dictionary is returned. If FACTORYZERO is False, the dictioanry matches
+	the contents of /data/shorthands. """
+def resetShorthands(factoryZero = False):
 	if factoryZero:
 		shortDict = {}
-		shortLines = HEROES_LIST
-		updateFile(HEROES_LIST, SHORTHAND_FILE)
+		save_obj(shortDict, SHORTHAND_PICKLE_NAME)
 	else:
-		dupLines, dupDict = formDuplicates(DUPLICATE_RESET_POINT)
-		shortLines, shortDict = formShorthands(dupDict, SHORTHAND_RESET_POINT)
-	return shortLines, shortDict, dupDict, dupLines
+		shortDict = formShorthands()
+	return shortDict
