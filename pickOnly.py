@@ -196,7 +196,7 @@ def performSort(heroesLeft, heroAdvMap, pickedHeroes):
 						pickedHeader += '{:<20}'.format(hero)
 					print('{:<20}'.format("Hero") + pickedHeader)
 					for sortEntry in sortValues:
-						heroDisplay = '{:^20}'.format(sortEntry[0])
+						heroDisplay = '{:<20}'.format(sortEntry[0])
 						advStats = ''
 						for adv in sortEntry[1]:
 							advStats += '{:>20}'.format(adv) + "\t"
