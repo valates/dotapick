@@ -82,8 +82,10 @@ def startPicks(percentThreshold):
 				else:
 					performSort(heroesLeft, heroAdvMap, pickedHeroes)
 			elif(pickedHero[:3].lower() == BAN_COMMAND):
-				pickedHero = properFormatName(pickedHero[3:])
-				print(pickedHero)
+				if (pickedHero in shortDict):
+					pickedHero = shortDict[pickedHero]
+				else:
+					pickedHero = properFormatName(pickedHero[4:])
 				heroesLeft.remove(pickedHero)
 				print(pickedHero + " banned.")
 				outputHeroesLeft(heroesLeft, heroAdvMap)
