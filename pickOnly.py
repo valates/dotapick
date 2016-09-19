@@ -127,27 +127,26 @@ def performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDi
 	if (properHero not in pickedHeroes):
 		if properHero in heroesLeft:
 			heroesLeft.remove(properHero)
-			heroAdvs = heroAdvantageDict[properHero]
-			for entryTuple in heroAdvs:
-				entryName = entryTuple[0]
-				entryName = prophetFix(entryName)
-				entryAdv = float(entryTuple[1])
-				heroAdvMap[entryName].append(entryAdv)
-				if (entryAdv > percentThreshold):
-					if (entryName in heroesLeft):
-						heroesLeft.remove(entryName)
-			pickedHeroes.append(properHero)
-			pickedHeader = ''
-			for hero in pickedHeroes:
-				pickedHeader += '{:^20}'.format(hero)
-			print('{:<20}'.format("Hero") + pickedHeader)
-			outputHeroesLeft(heroesLeft, heroAdvMap)
-
-		else:
-			print("Hero already marked as picked.")
-		print("\n\nPicked heroes:")
+		heroAdvs = heroAdvantageDict[properHero]
+		for entryTuple in heroAdvs:
+			entryName = entryTuple[0]
+			entryName = prophetFix(entryName)
+			entryAdv = float(entryTuple[1])
+			heroAdvMap[entryName].append(entryAdv)
+			if (entryAdv > percentThreshold):
+				if (entryName in heroesLeft):
+					heroesLeft.remove(entryName)
+		pickedHeroes.append(properHero)
+		pickedHeader = ''
 		for hero in pickedHeroes:
-			print(hero)
+			pickedHeader += '{:^20}'.format(hero)
+		print('{:<20}'.format("Hero") + pickedHeader)
+		outputHeroesLeft(heroesLeft, heroAdvMap)
+	else:
+		print("Hero already marked as picked.")
+	print("\n\nPicked heroes:")
+	for hero in pickedHeroes:
+		print(hero)
 	return properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap
 
 def outputHeroesLeft(heroesLeft, heroAdvMap):
