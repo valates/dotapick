@@ -24,4 +24,13 @@ SHORTHAND_PICKLE_NAME = "shorthands"
 BAN_COMMAND = "ban"
 
 """ List of all banned strings that are not allowed to be used as keys in our shorthand dictionary. """
-SHORTHAND_BLACKLIST = []
+SHORTHAND_BLACKLIST = SORT_INPUTS + [BAN_COMMAND, SHORTHAND_PICKLE_NAME, ADV_PICKLE_NAME, KILL_COMMAND]
+
+""" Name of the serialized object containing the sorting preference. """
+SORTING_PICKLE_NAME = "sortPreference"
+
+""" Name of the serialized object containing the percent threshold for pruning heroes. """
+THRESHOLD_PICKLE_NAME = "percentThreshold"
+
+""" Names of the hero roles files. """
+ROLES_NAMES = ["carries", "cores", "supports"]
