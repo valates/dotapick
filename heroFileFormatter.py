@@ -9,7 +9,7 @@ from random import randint
 
 HEROES_LIST = splitFileByNewline(HERONAME_FILE)
 
-def formatAdv():
+def pullDotabuff():
 	heroLen = len(HEROES_LIST)
 	heroHtml = splitFileByNewline("data/herohtml")
 	heroAdvDict = {}

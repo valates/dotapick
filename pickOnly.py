@@ -5,7 +5,7 @@ from constantNames import *
 from shorthand import *
 from pickleSerializers import *
 from htmlOperators import htmlSearcher, htmlSearchAll
-from heroFileFormatter import formatAdv
+from heroFileFormatter import pullDotabuff
 
 #TODO help option output from file contents
 #TODO comment functions
@@ -18,8 +18,8 @@ def main(args):
 	argc = len(sys.argv)
 	argv = sys.argv
 	if (argc == 2):
-		if (argv[1].lower() == "--formathtml"):
-			formatAdv()
+		if (argv[1].lower() == "--pulldotabuff"):
+			pullDotabuff()
 		if (argv[1].lower() == "--reset"):
 			save_obj(2.0, THRESHOLD_PICKLE_NAME)
 			save_obj(None, SORTING_PICKLE_NAME)
