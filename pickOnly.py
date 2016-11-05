@@ -35,14 +35,14 @@ def main(args):
 					percentThreshold = float(argv[2])
 					save_obj(percentThreshold, THRESHOLD_PICKLE_NAME)
 				except ValueError:
-					print("Invalid float value, '" + argv[2] + ",' inputted. Try again.")
-					exit()
+					print("Invalid float value, '" + argv[2] + ",' inputted. Continuing with previous value.")
 			if (argv[1].lower() == "--setsort"):
 				if (argv[2].lower() in SORT_INPUTS):
 					save_obj(argv[2].lower(), SORTING_PICKLE_NAME)
 				else:
-					print("Invalid sorting value, '" + argv[2] + "'. Try again.")
+					print("Invalid sorting value, '" + argv[2] + "'. Continuing with previous value.")
 		startPicks()
+
 
 def startPicks():
 	percentThreshold = load_obj(THRESHOLD_PICKLE_NAME)
@@ -95,7 +95,7 @@ def startPicks():
 					if ((hero in heroesLeft) and (hero not in remainder1) and (hero not in remainder2)):
 						heroesLeft.remove(hero)
 				performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
-		elif(pickedHero[:3].lower() == BAN_COMMAND):
+		elif((pickedHero[:3].lower() == BAN_COMMAND) and (pickedHero[:4].lower() != 'bane')):
 			pickedHero = pickedHero[3:].strip()
 			print(pickedHero)
 			if (pickedHero in shortDict):
@@ -203,7 +203,7 @@ def performSort(heroesLeft, heroAdvMap, pickedHeroes, sortOption):
 					entrySum /= len(pickedHeroes)
 				sumTuple = (entryName, entrySum)
 				sumList.append(sumTuple)
-			sumList = sorted(sumList, key=lambda curSum: curSum[1])
+			sumList = sorted(sumList, key=lambda curSum: curSum[1], reverse=True)
 			for sumEntry in sumList:
 				heroDisplay = '{:<20}'.format(sumEntry[0]) + '\t' + '{0:.2f}'.format(sumEntry[1])
 				print(heroDisplay)
@@ -211,7 +211,7 @@ def performSort(heroesLeft, heroAdvMap, pickedHeroes, sortOption):
 			if (sortOption in SORT_INPUTS[2:]):
 				sortOption = int(sortOption)
 				if (sortOption <= len(pickedHeroes)):
-					sortValues = sorted(sortValues, key=lambda curList: (curList[1])[(sortOption - 1)])
+					sortValues = sorted(sortValues, key=lambda curList: (curList[1])[(sortOption - 1)], reverse=True)
 					pickedHeader = ''
 					for hero in pickedHeroes:
 						pickedHeader += '{:<20}'.format(hero)
