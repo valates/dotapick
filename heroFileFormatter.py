@@ -18,7 +18,6 @@ def pullDotabuff():
 	advStart = "<td class=\"cell-xlarge\">"
 	advCutoff = "<div class=\"bar bar-default\"><div class=\"segment segment-advantage\""
 	i = 1
-	print(HEROES_LIST)
 	for hero in HEROES_LIST:
 		url = hero.replace(" ","-")
 		url = url.lower()

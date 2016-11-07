@@ -10,8 +10,6 @@ from heroFileFormatter import pullDotabuff
 #TODO help option output from file contents
 #TODO comment functions
 
-#Make so presetting a sort value behaves as it should for sum, average- right now preserves column names
-
 HEROES_LIST = splitFileByNewline(HERONAME_FILE)
 
 def main(args):
