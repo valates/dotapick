@@ -75,6 +75,79 @@ def startPicks():
 			else:
 				print("Please enter a valid sorting command.")
 			performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
+		elif (pickedHero[:4] == "undo"):
+			undoCommand = pickedHero.split(" ")
+			if (len(undoCommand) == 1):
+				properHero = pickedHeroes[-1]
+			else:
+				pickedHero = pickedHero[5:]
+				if (pickedHero in shortDict):
+					properHero = shortDict[pickedHero]
+				else:
+					properHero = properFormatName(pickedHero)
+			if (properHero in pickedHeroes):
+				pickedHeroes.remove(properHero)
+				heroesLeft = []
+				for hero in HEROES_LIST:
+					heroAdvMap[hero] = []
+					heroesLeft.append(hero)
+				pickedCopy = []
+				for hero in pickedHeroes:
+					hero, pickedCopy, heroesLeft, heroAdvantageDict, heroAdvMap = performAdvantageSearch(hero, 
+																										 pickedCopy, 
+																										 heroesLeft, 
+																										 heroAdvantageDict, 
+																										 heroAdvMap, 
+																										 percentThreshold,
+																										 sortPrefix)
+				pickedHeroes = pickedCopy
+			else:
+				print(properHero + " not present in picked heroes. Try again.")
+		elif (pickedHero[:6] == "repick"):
+			repickedCommand = pickedHero.split(" ")
+			if (len(repickedCommand) != 3):
+				print("Insufficient arguments to repick command.")
+			else:
+				removingHero = repickedCommand[1] 
+				pickingHero = repickedCommand[2]
+
+				if (removingHero in shortDict):
+					properRemoveHero = shortDict[removingHero]
+				else:
+					properRemoveHero = properFormatName(removingHero)
+
+				if (pickingHero in shortDict):
+					properPickHero = shortDict[pickingHero]
+				else:
+					properPickHero = properFormatName(pickingHero)
+			if (properRemoveHero in pickedHeroes):
+				if (properPickHero in pickedHeroes):
+					print(properPickHero + " already picked. Repick with a different hero.")
+				else: 
+					pickedHeroes.remove(properRemoveHero)
+					heroesLeft = []
+					for hero in HEROES_LIST:
+						heroAdvMap[hero] = []
+						heroesLeft.append(hero)
+					pickedCopy = []
+					for hero in pickedHeroes:
+						hero, pickedCopy, heroesLeft, heroAdvantageDict, heroAdvMap = performAdvantageSearch(hero, 
+																											 pickedCopy, 
+																											 heroesLeft, 
+																											 heroAdvantageDict, 
+																											 heroAdvMap, 
+																											 percentThreshold,
+																											 sortPrefix)
+					pickedHeroes = pickedCopy
+					properPickHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap = performAdvantageSearch(properPickHero, 
+																										 		     pickedHeroes, 
+																												     heroesLeft, 
+																												     heroAdvantageDict, 
+																												     heroAdvMap, 
+																												     percentThreshold,
+																											         sortPrefix)
+			else:
+				print(properRemoveHero + " not present in picked heroes. Try again.")
 		elif (pickedHero[:4] == "sort"):
 			if (len(pickedHeroes) == 0):
 				print("Cannot sort without any advantages. Pick a hero first.")
