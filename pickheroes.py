@@ -168,7 +168,6 @@ def startPicks():
 				performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
 		elif((pickedHero[:3].lower() == BAN_COMMAND) and (pickedHero[:4].lower() != 'bane')):
 			pickedHero = pickedHero[3:].strip()
-			print(pickedHero)
 			if (pickedHero in shortDict):
 				pickedHero = shortDict[pickedHero]
 			else:
