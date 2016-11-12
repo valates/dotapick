@@ -282,14 +282,14 @@ def performSort(heroesLeft, heroAdvMap, pickedHeroes, sortOption):
 					sortValues = sorted(sortValues, key=lambda curList: (curList[1])[(sortOption - 1)], reverse=True)
 					pickedHeader = ''
 					for hero in pickedHeroes:
-						pickedHeader += '{:<20}'.format(hero)
+						pickedHeader += '{:>20}'.format(hero)
 					print('{:<20}'.format("Hero") + pickedHeader)
 					for sortEntry in sortValues:
 						heroDisplay = '{:<20}'.format(sortEntry[0])
 						advStats = ''
 						for adv in sortEntry[1]:
-							advStats += '{:>20}'.format(adv) + "\t"
-						print(heroDisplay + "\t" + advStats)
+							advStats += '{:>20}'.format(adv)
+						print(heroDisplay + advStats)
 				else:
 					print("Insufficient number of picked heroes to sort by column '" + str(sortOption) + "'")
 			else:
