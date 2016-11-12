@@ -24,8 +24,6 @@ def main(args):
 			resetShorthands()
 		if (argv[1].lower() == "--setsort"):
 			save_obj(None, SORTING_PICKLE_NAME)
-	elif ((argc == 4) and (argv[1].lower() == "--addshort")):
-		addShorthand(properFormatName(argv[2]), argv[3], shortDict)
 	else:
 		if (argc == 3):
 			if (argv[1].lower() == "--setpercent"):
@@ -152,7 +150,7 @@ def startPicks():
 			else:
 				print((pickedHero.split(' '))[1])
 				performSort(heroesLeft, heroAdvMap, pickedHeroes, (pickedHero.split(' '))[1])
-		elif(pickedHero[:5] == "prune"):
+		elif (pickedHero[:5] == "prune"):
 			pruneTokens = pickedHero.split(" ")
 			if (pruneTokens[1] in ROLES_NAMES):
 				toPrune = splitFileByNewline("data/" + pruneTokens[1])
@@ -166,7 +164,7 @@ def startPicks():
 					if ((hero in heroesLeft) and (hero not in remainder1) and (hero not in remainder2)):
 						heroesLeft.remove(hero)
 				performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
-		elif((pickedHero[:3].lower() == BAN_COMMAND) and (pickedHero[:4].lower() != 'bane')):
+		elif ((pickedHero[:3].lower() == BAN_COMMAND) and (pickedHero[:4].lower() != 'bane')):
 			pickedHero = pickedHero[3:].strip()
 			if (pickedHero in shortDict):
 				pickedHero = shortDict[pickedHero]
