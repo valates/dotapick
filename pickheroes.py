@@ -6,6 +6,7 @@ from shorthand import *
 from pickleSerializers import *
 from htmlOperators import htmlSearcher, htmlSearchAll
 from heroFileFormatter import pullDotabuff
+from pythonShortcomings import iterateAndRemove
 
 #TODO help option output from file contents
 #TODO comment functions
@@ -156,10 +157,7 @@ def startPicks():
 			focusTokens = pickedHero.split(" ")
 			if (focusTokens[1] in ROLES_NAMES):
 				toFocus = splitFileByNewline("data/" + focusTokens[1])
-				print(toFocus)
-				for hero in heroesLeft:
-					if (hero not in toFocus):
-						heroesLeft.remove(hero)
+				heroesLeft = iterateAndRemove(heroesLeft, lambda toFocus, entry: entry not in toFocus, toFocus)
 				performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
 		elif (pickedHero[:5] == "prune"):
 			pruneTokens = pickedHero.split(" ")
