@@ -33,4 +33,4 @@ SORTING_PICKLE_NAME = "sortPreference"
 THRESHOLD_PICKLE_NAME = "percentThreshold"
 
 """ Names of the hero roles files. """
-ROLES_NAMES = ["carries", "cores", "supports"]
+ROLES_NAMES = ["carry", "disabler", "initiator", "jungler", "support", "tank", "nuker", "pusher", "escape"]

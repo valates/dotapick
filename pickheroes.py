@@ -1,4 +1,4 @@
-import sys, fileOperators, nameFormater, constantNames, shorthand, pickleSerializers, htmlOperators, heroFileFormatter
+import sys
 from fileOperators import *
 from nameFormater import *
 from constantNames import *
@@ -38,7 +38,6 @@ def main(args):
 				else:
 					print("Invalid sorting value, '" + argv[2] + "'. Continuing with previous value.")
 		startPicks()
-
 
 def startPicks():
 	percentThreshold = load_obj(THRESHOLD_PICKLE_NAME)
@@ -148,20 +147,35 @@ def startPicks():
 			if (len(pickedHeroes) == 0):
 				print("Cannot sort without any advantages. Pick a hero first.")
 			else:
-				print((pickedHero.split(' '))[1])
-				performSort(heroesLeft, heroAdvMap, pickedHeroes, (pickedHero.split(' '))[1])
+				sortTokens = pickedHero.split(' ')
+				if (len(sortTokens) == 1):
+					print("Enter a sorting command as well.")
+				else:
+					performSort(heroesLeft, heroAdvMap, pickedHeroes, sortTokens[1])
+		elif (pickedHero[:5] == "focus"):
+			focusTokens = pickedHero.split(" ")
+			if (focusTokens[1] in ROLES_NAMES):
+				toFocus = splitFileByNewline("data/" + focusTokens[1])
+				print(toFocus)
+				for hero in heroesLeft:
+					if (hero not in toFocus):
+						heroesLeft.remove(hero)
+				performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
 		elif (pickedHero[:5] == "prune"):
 			pruneTokens = pickedHero.split(" ")
 			if (pruneTokens[1] in ROLES_NAMES):
 				toPrune = splitFileByNewline("data/" + pruneTokens[1])
-				remainderFiles = [x for x in ROLES_NAMES if (x != pruneTokens[1])]
-				if ((len(pruneTokens) == 3) and (pruneTokens[2] == "--harsh")):
-					remainder1, remainder2 = [], []
-				else:
-					remainder1 = splitFileByNewline("data/" + remainderFiles[0])
-					remainder2 = splitFileByNewline("data/" + remainderFiles[1])
+				remainingRoles = []
+				for role in ROLES_NAMES:
+					if (role != pruneTokens[1]):
+						currentRoleList = splitFileByNewline("data/" + role)
+						remainingRoles.append(currentRoleList)
 				for hero in toPrune:
-					if ((hero in heroesLeft) and (hero not in remainder1) and (hero not in remainder2)):
+					noOverlap = True
+					for heroList in remainingRoles:
+						if (hero in heroList):
+							noOverlap = False
+					if (noOverlap):
 						heroesLeft.remove(hero)
 				performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
 		elif ((pickedHero[:3].lower() == BAN_COMMAND) and (pickedHero[:4].lower() != 'bane')):

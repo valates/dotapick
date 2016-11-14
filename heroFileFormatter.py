@@ -1,4 +1,4 @@
-import sys, fileOperators, nameFormater, constantNames, shorthand, pickleSerializers, htmlOperators, time, random, requests
+import requests
 from fileOperators import *
 from nameFormater import *
 from constantNames import *
