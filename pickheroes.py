@@ -61,8 +61,10 @@ def startPicks():
 		if (pickedHero == KILL_COMMAND):
 			exit()
 		elif (pickedHero in SORT_INPUTS):
-			print("Not currently in sorting function. Entry 'sort' to switch.")
+			print("Not currently in sorting function. Enter 'sort' with a sort command to sort current data.")
 		elif(pickedHero[:7]=="setsort"):
+
+
 			sortToSet = (pickedHero.split(" "))[1]
 			if (sortToSet in SORT_INPUTS):
 				sortPrefix = sortToSet
@@ -71,7 +73,11 @@ def startPicks():
 			else:
 				print("Please enter a valid sorting command.")
 			performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
+
+
 		elif (pickedHero[:4] == "undo"):
+
+
 			undoCommand = pickedHero.split(" ")
 			if (len(undoCommand) == 1):
 				properHero = pickedHeroes[-1]
@@ -99,7 +105,11 @@ def startPicks():
 				pickedHeroes = pickedCopy
 			else:
 				print(properHero + " not present in picked heroes. Try again.")
+
+
 		elif (pickedHero[:6] == "repick"):
+
+
 			repickedCommand = pickedHero.split(" ")
 			if (len(repickedCommand) != 3):
 				print("Insufficient arguments to repick command.")
@@ -144,7 +154,11 @@ def startPicks():
 																					  sortPrefix)
 				else:
 					print(properRemoveHero + " not present in picked heroes. Try again.")
+
+
 		elif (pickedHero[:4] == "sort"):
+
+
 			if (len(pickedHeroes) == 0):
 				print("Cannot sort without any advantages. Pick a hero first.")
 			else:
@@ -153,81 +167,122 @@ def startPicks():
 					print("Enter a sorting command as well.")
 				else:
 					performSort(heroesLeft, heroAdvMap, pickedHeroes, sortTokens[1])
+
+
 		elif (pickedHero[:5] == "focus"):
+
+
 			focusTokens = pickedHero.split(" ")
 			if (focusTokens[1] in ROLES_NAMES):
 				toFocus = splitFileByNewline("data/" + focusTokens[1])
 				heroesLeft = iterateAndRemove(heroesLeft, lambda toFocus, entry: entry not in toFocus, toFocus)
 				performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
+
+
 		elif (pickedHero[:5] == "prune"):
-			pruneTokens = pickedHero.split(" ")
-			if (pruneTokens[1] in ROLES_NAMES):
-				toPrune = splitFileByNewline("data/" + pruneTokens[1])
-				remainingRoles = []
-				for role in ROLES_NAMES:
-					if (role != pruneTokens[1]):
-						currentRoleList = splitFileByNewline("data/" + role)
-						remainingRoles.append(currentRoleList)
-				for hero in toPrune:
-					noOverlap = True
-					for heroList in remainingRoles:
-						if (hero in heroList):
-							noOverlap = False
-					if (noOverlap):
-						heroesLeft.remove(hero)
-				performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
-		elif ((pickedHero[:3].lower() == BAN_COMMAND) and (pickedHero[:4].lower() != 'bane')):
-			pickedHero = pickedHero[3:].strip()
-			if (pickedHero in shortDict):
-				pickedHero = shortDict[pickedHero]
-			else:
-				pickedHero = properFormatName(pickedHero)
-			if (pickedHero in heroesLeft):
-				heroesLeft.remove(pickedHero)
-				print(pickedHero + " banned.")
-				performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
-			else:
-				print("'" + pickedHero + "' not present in hero list. Try again.")
+			heroesLeft = pruneHeroesByRole(pickedHero, heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
+		elif ((pickedHero[:3].lower() == BAN_COMMAND) and (pickedHero[3].lower() != 'e')):
+			heroesLeft = banHero(pickedHero, shortDict, heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
 		else:
-			if (pickedHero in shortDict):
-				properHero = shortDict[pickedHero]
-			else:
-				properHero = properFormatName(pickedHero)
-			if (properHero in HEROES_LIST):
-				pickedHeroes, heroesLeft, heroAdvMap = performAdvantageSearch(properHero, 
-																			  pickedHeroes, 
-																			  heroesLeft, 
-																			  heroAdvantageDict, 
-																			  heroAdvMap, 
-																			  percentThreshold,
-																			  sortPrefix)
-			else:	
-				print("Invalid hero name '" + pickedHero + "', add it to shorthands?")
-				heroToMap = properFormatName(input("If so, enter a valid hero name: "))
-				if heroToMap in HEROES_LIST:
-					response = input("Adding shorthand '" + pickedHero + "' for hero '" + heroToMap + "'. Enter 'y' to confirm: ")
-					if (response == 'y'):
-						addShorthand(heroToMap, pickedHero, shortDict)
-						print("Shorthand added.")
-					else:
-						print("Shorthand cancelled.")
-					response = input("Enter 'y' to pick " + heroToMap + ": ")
-					if (response == 'y'):
-						pickedHeroes, heroesLeft, heroAdvMap = performAdvantageSearch(heroToMap, 
-																					  pickedHeroes, 
-																					  heroesLeft, 
-																					  heroAdvantageDict, 
-																					  heroAdvMap, 
-																					  percentThreshold,
-																					  sortPrefix)
-				else:
-					print("Invalid hero name '" + heroToMap + "', not adding to shorthands. Please enter a real name.")
+			pickedHeroes, heroesLeft, heroAdvMap, shortDict= pickHero(pickedHero, 
+																	  shortDict, 
+																	  pickedHeroes, 
+																	  heroesLeft, 
+																	  heroAdvantageDict, 
+																	  heroAdvMap, 
+																	  percentThreshold, 
+																	  sortPrefix)
 	while(True):
 		print("Enter " + KILL_COMMAND + " at any time to quit sorting.")
 		sortOption = input("\n\nEnter sorting method (" + SORT_INPUTS[0] + ", " + SORT_INPUTS[1] + ", or 1-5): ").lower()
 		if (sortOption == KILL_COMMAND):
 			break
 		performSort(heroesLeft, heroAdvMap, pickedHeroes, sortOption)
+
+
+
+def addToShorthands(pickedHero, shortDict, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix):
+	print("Invalid hero name '" + pickedHero + "', add it to shorthands?")
+	heroToMap = properFormatName(input("If so, enter a valid hero name: "))
+	if heroToMap in HEROES_LIST: #TO DO CHECK IF IN SHORTHANDS OR IN HEROES LIST
+		response = input("Adding shorthand '" + pickedHero + "' for hero '" + heroToMap + "'. Enter 'y' to confirm: ")
+		if (response == 'y'):
+			addShorthand(heroToMap, pickedHero, shortDict)
+			print("Shorthand added.")
+		else:
+			print("Shorthand cancelled.")
+		response = input("Enter 'y' to pick " + heroToMap + ": ")
+		if (response == 'y'):
+			pickedHeroes, heroesLeft, heroAdvMap = performAdvantageSearch(heroToMap, 
+																		  pickedHeroes, 
+																		  heroesLeft, 
+																		  heroAdvantageDict, 
+																		  heroAdvMap, 
+																		  percentThreshold,
+																		  sortPrefix)
+		else:
+			print("Invalid hero name '" + heroToMap + "', not adding to shorthands. Please enter a real name.")
+		return pickedHeroes, heroesLeft, heroAdvMap
+
+def pickHero(pickedHero, shortDict, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix):
+	if (pickedHero in shortDict):
+		properHero = shortDict[pickedHero]
+	else:
+		properHero = properFormatName(pickedHero)
+	if (properHero in HEROES_LIST):
+		pickedHeroes, heroesLeft, heroAdvMap = performAdvantageSearch(properHero, 
+																	  pickedHeroes, 
+																	  heroesLeft, 
+																	  heroAdvantageDict, 
+																	  heroAdvMap, 
+																	  percentThreshold,
+																	  sortPrefix)
+	else:	
+		pickedHeroes, heroesLeft, heroAdvMap = addToShorthands(pickedHero, 
+															   shortDict, 
+															   pickedHeroes, 
+															   heroesLeft, 
+															   heroAdvantageDict, 
+															   heroAdvMap, 
+															   percentThreshold, 
+															   sortPrefix)
+	return pickedHeroes, heroesLeft, heroAdvMap, shortDict
+
+
+def pruneHeroesByRole(pickedHero, heroesLeft, heroAdvMap, pickedHeroes, sortPrefix): #TODO turn into call for other cousin of this
+#TODO MAKE SURE WORKING
+	pruneTokens = pickedHero.split(" ")
+	if (pruneTokens[1] in ROLES_NAMES):
+		toPrune = splitFileByNewline("data/" + pruneTokens[1])
+		remainingRoles = []
+		for role in ROLES_NAMES:
+			if (role != pruneTokens[1]):
+				currentRoleList = splitFileByNewline("data/" + role)
+				remainingRoles.append(currentRoleList)
+		for hero in toPrune:
+			noOverlap = True
+			for heroList in remainingRoles:
+				if (hero in heroList):
+					noOverlap = False
+			if (noOverlap):
+				heroesLeft.remove(hero)
+		performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
+	return heroesLeft
+
+
+def banHero(pickedHero, shortDict, heroesLeft, heroAdvMap, pickedHeroes, sortPrefix):
+	pickedHero = pickedHero[3:].strip()
+	if (pickedHero in shortDict):
+		pickedHero = shortDict[pickedHero]
+	else:
+		pickedHero = properFormatName(pickedHero)
+	if (pickedHero in heroesLeft):
+		heroesLeft.remove(pickedHero)
+		print(pickedHero + " banned.")
+		performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
+	else:
+		print("'" + pickedHero + "' not present in hero list. Try again.")
+	return heroesLeft
 
 def performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix):
 	print("\n**********\n")
@@ -285,7 +340,7 @@ def performSort(heroesLeft, heroAdvMap, pickedHeroes, sortOption):
 				sumList.append(sumTuple)
 			sumList = sorted(sumList, key=lambda curSum: curSum[1], reverse=True)
 			for sumEntry in sumList:
-				heroDisplay = '{:<20}'.format(sumEntry[0]) + '\t' + '{0:.2f}'.format(sumEntry[1])
+				heroDisplay = '{:<20}'.format(sumEntry[0]) + '\t\t' + '{0:.2f}'.format(sumEntry[1])
 				print(heroDisplay)
 		else:
 			if (sortOption in SORT_INPUTS[2:]):

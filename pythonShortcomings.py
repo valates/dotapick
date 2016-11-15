@@ -4,4 +4,3 @@ def iterateAndRemove(inputList, conditionOfRemoval, toAct):
 		if (conditionOfRemoval(toAct, entry)):
 			outputList.remove(entry)
 	return outputList
-
