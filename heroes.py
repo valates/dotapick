@@ -14,8 +14,10 @@ def initHeroAdvs():
 	return heroAdvMap, heroesLeft
 
 def findHero(pickedHero, shortDict, heroesToCheckForPick):
-	if ((pickedHero in shortDict) or (pickedHero.lower() in shortDict)):
+	if (pickedHero in shortDict):
 		properHero = shortDict[pickedHero]
+	elif(pickedHero.lower() in shortDict):
+		properHero = shortDict[pickedHero.lower()]
 	else:
 		properHero = properFormatName(pickedHero)
 	if (properHero not in HEROES_LIST):
@@ -40,8 +42,9 @@ def banHero(pickedHero, shortDict, heroesLeft, heroAdvMap, pickedHeroes, sortPre
 	properHero, shortDict = findHero(pickedHero[3:].strip(), shortDict, heroesLeft)
 	if (properHero is not None):
 		heroesLeft.remove(properHero)
-		print(pickedHero + " banned.")
+		print(properHero + " banned.")
 		performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
+		print("\n**********\n")
 	else:
 		print("'" + pickedHero + "' not present in hero list. Try again.")
 	return heroesLeft

@@ -1,6 +1,6 @@
 import argparse
 import sys
-from constantNames import *
+from constantNames import THRESHOLD_PICKLE_NAME, SORTING_PICKLE_NAME, SORTING_PICKLE_NAME, ADV_PICKLE_NAME, SHORTHAND_PICKLE_NAME, KILL_COMMAND, ROLES_NAMES, SORT_INPUTS, HEROES_LIST, BAN_COMMAND
 from pickleSerializers import save_obj, load_obj
 from heroFileFormatter import pullDotabuff
 from sorting import performSort

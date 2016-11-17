@@ -1,13 +1,10 @@
 import requests
-from fileOperators import *
-from nameFormater import *
-from constantNames import *
+from fileOperators import splitFileByNewline
+from constantNames import HEROES_LIST, ADV_PICKLE_NAME
 from shorthand import formShorthands
-from pickleSerializers import *
+from pickleSerializers import save_obj
 from htmlOperators import htmlSearcher, htmlSearchAll
 from random import randint
-
-HEROES_LIST = splitFileByNewline(HERONAME_FILE)
 
 def pullDotabuff():
 	heroLen = len(HEROES_LIST)

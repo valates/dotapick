@@ -1,15 +1,13 @@
-from fileOperators import *
 from nameFormater import properFormatName
-from constantNames import *
-from pickleSerializers import *
+from pickleSerializers import save_obj
+from fileOperators import formDictFromCommaFile
+from constantNames import SHORTHAND_FILE, SHORTHAND_PICKLE_NAME
 
 """ Creates a dictionary from the file containing all preset hero shorthands
-	located in /data/shorthands. Saves the dictionary to a file and returns
-	the dictionary. """
+	located in /data/shorthands. Saves the dictionary to a file. """
 def formShorthands():
 	shortDict = formDictFromCommaFile(SHORTHAND_FILE)
 	save_obj(shortDict, SHORTHAND_PICKLE_NAME)
-	return shortDict
 
 """ Associates the string SHORTHAND with the hero with string name HERONAME by adding the
 	key, value pair to the dictionary of shorthands, SHORTDICT. Returns the resulting dictionary
