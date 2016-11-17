@@ -1,6 +1,5 @@
 from constantNames import SORT_INPUTS
 
-
 """ Sorts the heroes not prunes stored in the list HEROESLEFT. Uses the contents
 	dictionary HEROADVMAP which contains the % advantage each hero in list PICKEDHEROES
 	has against the hero in HEROESLEFT. Sorts based on the string specifier SORTOPTION. """

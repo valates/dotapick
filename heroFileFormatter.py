@@ -6,6 +6,9 @@ from pickleSerializers import save_obj
 from htmlOperators import htmlSearcher, htmlSearchAll
 from random import randint
 
+
+""" Pulls public matcj data from dotabuff.com for each existing hero. For each hero, gets
+	the advantage every other hero has against that hero and stores it in a serialized dictionary. """
 def pullDotabuff():
 	heroLen = len(HEROES_LIST)
 	heroHtml = splitFileByNewline("data/herohtml")

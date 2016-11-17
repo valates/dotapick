@@ -6,6 +6,9 @@ from fileOperators import splitFileByNewline
 from nameFormater import prophetFix
 from pythonShortcomings import iterateAndRemove
 
+""" Initializes a blank dictionary to represent advantages 
+	each picked hero has against the remaining heroes and a
+	blank list to represent all heroes left to pick from. """
 def initHeroAdvs():
 	heroAdvMap, heroesLeft = {}, []
 	for hero in HEROES_LIST:
@@ -13,6 +16,13 @@ def initHeroAdvs():
 		heroesLeft.append(hero)
 	return heroAdvMap, heroesLeft
 
+""" Searches for the specified hero with name PICKEDHERO
+	first in the dictionary of shorthands, SHORTDICT, and 
+	once a hero has been located in shorthands or the list
+	of heroes. Once the hero has been located, we check if its
+	proper name is located in the specified list of some 
+	group of heroes, HEROESTOCHECKFORPICK. If present, the
+	hero is returned. Otherwise, None is returned. """
 def findHero(pickedHero, shortDict, heroesToCheckForPick):
 	if (pickedHero in shortDict):
 		properHero = shortDict[pickedHero]
@@ -26,6 +36,14 @@ def findHero(pickedHero, shortDict, heroesToCheckForPick):
 		return None, shortDict
 	return properHero, shortDict
 
+""" Picks the hero specified by string PICKEDHERO. Takes the 
+	dictionary of shorthands, SHORTDICT, as well as the list 
+	of picked heroes, PICKEDHEROES and adds the picked hero 
+	to it. We also pass the dictionary of advantages picked
+	heroes have against the remaining heroes, HEROADVANTAGEDICT,
+	the mapping of advantages each hero has against all other heroes,
+	HEROADVMAP, the threshold above which a hero is considered highly
+	advantaged, PERCENTTHRESHOLD, and the storing specifier, SORTPREFIX. """
 def pickHero(pickedHero, shortDict, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix):
 	properHero, shortDict = findHero(pickedHero, shortDict, HEROES_LIST)
 	if (properHero is not None):
@@ -92,6 +110,8 @@ def performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDi
 		print(hero)
 	return pickedHeroes, heroesLeft, heroAdvMap
 
+""" Adds the string specified by PICKEDHERO to the shorthand
+	dictionary, SHORTDICT. """
 def addToShorthands(pickedHero, shortDict):
 	heroToReturn = None
 	print("Invalid hero name '" + pickedHero + "', add it to shorthands?")
