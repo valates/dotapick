@@ -56,6 +56,9 @@ def pickHero(pickedHero, shortDict, pickedHeroes, heroesLeft, heroAdvantageDict,
 																	  sortPrefix)
 	return pickedHeroes, heroesLeft, heroAdvMap, shortDict
 
+
+""" Removes the hero specified by string PICKEDHERO from the list of remaining
+	heroes, HEROESLEFT. """
 def banHero(pickedHero, shortDict, heroesLeft, heroAdvMap, pickedHeroes, sortPrefix):
 	properHero, shortDict = findHero(pickedHero[3:].strip(), shortDict, heroesLeft)
 	if (properHero is not None):
@@ -67,6 +70,9 @@ def banHero(pickedHero, shortDict, heroesLeft, heroAdvMap, pickedHeroes, sortPre
 		print("'" + pickedHero + "' not present in hero list. Try again.")
 	return heroesLeft
 
+""" Removes the hero specificied by PROPERHERO from the list of picked heroes,
+	PICKEDHEROES. Updates thel sit of remaining heroes accordingly (i.e., readds
+	the heroes that are no longer considered highly disadvantaged). """
 def undoPick(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix):
 	pickedHeroes.remove(properHero)
 	heroAdvMap, heroesLeft = initHeroAdvs()
@@ -81,12 +87,20 @@ def undoPick(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap
 																	sortPrefix)
 	return pickedCopy, heroesLeft, heroAdvMap
 
+
+""" Takes the string name for a file listing heroes fitting a specific role.
+	Removes all heroes from the remaining hero list that do not have their name
+	in the corresponding role file specified by string FOCUSSPECIFIER. """
 def focusRemainingHeroPool(focusSpecifier, heroesLeft, heroAdvMap, pickedHeroes, sortPrefix):
 	toFocus = splitFileByNewline("data/" + focusSpecifier)
 	heroesLeft = iterateAndRemove(heroesLeft, lambda toFocus, entry: entry not in toFocus, toFocus)
 	performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
 	return heroesLeft
 
+""" Searches the mapping of each hero's advantage to every other hero stored
+	in HEROADVMAP. For each hero in the list of remaining heroes, HEROESLEFT,
+	remove that hero if the picked hero specified by PROPERHERO has an advantage
+	against the hero in HEROESLEFT greater than or equal to PERCENTTHRESHOLD. """
 def performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix):
 	print("\n**********\n")
 	if (properHero not in pickedHeroes):
