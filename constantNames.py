@@ -1,3 +1,5 @@
+from fileOperators import splitFileByNewline
+
 """ File containing all hero names with one on each line. """
 HERONAME_FILE = 'data/heroes'
 
@@ -31,6 +33,9 @@ SORTING_PICKLE_NAME = "sortPreference"
 
 """ Name of the serialized object containing the percent threshold for pruning heroes. """
 THRESHOLD_PICKLE_NAME = "percentThreshold"
+
+""" List containing all hero names. """
+HEROES_LIST = splitFileByNewline(HERONAME_FILE)
 
 """ Names of the hero roles files. """
 ROLES_NAMES = ["carry", "disabler", "initiator", "jungler", "support", "tank", "nuker", "pusher", "escape"]

@@ -11,8 +11,6 @@ from pythonShortcomings import iterateAndRemove
 
 #TODO help option output from file contents
 
-HEROES_LIST = splitFileByNewline(HERONAME_FILE)
-
 def main(args):
 	argc = len(sys.argv)
 	argv = sys.argv
@@ -21,10 +19,10 @@ def main(args):
 			pullDotabuff()
 		if (argv[1].lower() == "--reset"):
 			save_obj(2.0, THRESHOLD_PICKLE_NAME)
-			save_obj(None, SORTING_PICKLE_NAME)
+			save_obj("", SORTING_PICKLE_NAME)
 			resetShorthands()
 		if (argv[1].lower() == "--setsort"):
-			save_obj(None, SORTING_PICKLE_NAME)
+			save_obj("", SORTING_PICKLE_NAME)
 	else:
 		if (argc == 3):
 			if (argv[1].lower() == "--setpercent"):
@@ -43,12 +41,19 @@ def main(args):
 def startPicks():
 	percentThreshold = load_obj(THRESHOLD_PICKLE_NAME)
 	sortPrefix = load_obj(SORTING_PICKLE_NAME)
-	if (sortPrefix == "None"):
-		sortPrefix = None
 	heroAdvantageDict = load_obj(ADV_PICKLE_NAME)
 	shortDict = load_obj(SHORTHAND_PICKLE_NAME)
 	pickedHeroes = []
 	heroAdvMap, heroesLeft = initHeroAdvs()
+
+	informationPool[] = {}
+	informationPool["percentThreshold"] = load_obj(THRESHOLD_PICKLE_NAME)
+	informationPool["sortPrefix"] = load_obj(SORTING_PICKLE_NAME)
+	informationPool["heroAdvantageDict"] = load_obj(ADV_PICKLE_NAME)
+	informationPool["shortDict"] = load_obj(SHORTHAND_PICKLE_NAME)
+	informationPool["pickedHeroes"] = []
+	informationPool["heroAdvMap"] = heroAdvMap
+	informationPool["heroesLeft"] = heroesLeft
 	performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
 	while (len(pickedHeroes) < 5):
 		print("\n")
@@ -58,8 +63,10 @@ def startPicks():
 			pickedHero = pickedHero.strip()
 			if (len(pickedHeroes) == 5):
 				break
-			if (pickedHero == KILL_COMMAND):
+			elif (pickedHero == KILL_COMMAND):
 				exit()
+			elif(pickedHero == ""):
+				performSort(heroesLeft, heroAdvMap, pickedHeroes, sortOption)
 			elif (pickedHero in SORT_INPUTS):
 				print("Not currently in sorting function. Enter 'sort' with a sort command to sort current data.")
 			elif (pickedHero[:4] == "undo"):
@@ -69,16 +76,10 @@ def startPicks():
 				else:
 					properHero, shortDict = findHero(pickedHero[5:], shortDict, pickedHeroes)
 				if (properHero is not None):
-					pickedHeroes, heroesLeft, heroAdvMap = undoPick(properHero, 
-																	pickedHeroes, 
-																	heroesLeft, 
-																	heroAdvantageDict, 
-																	heroAdvMap, 
-																	percentThreshold, 
-																	sortPrefix)
+					pickedHeroes, heroesLeft, heroAdvMap = undoPick(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix)
 				else:
 					print(properHero + " not present in picked heroes. Try again.")
-			elif (pickedHero[:6] == "repick"): #TODO how to handle if one of picked arguments is rejected...
+			elif (pickedHero[:6] == "repick"):
 				repickedCommand = pickedHero.split(" ")
 				if (len(repickedCommand) != 3):
 					print("Insufficient arguments to repick command.")
@@ -87,21 +88,8 @@ def startPicks():
 					properPickHero, shortDict = findHero(repickedCommand[2], shortDict, [hero for hero in HEROES_LIST if hero not in pickedHeroes])
 					if (properRemoveHero is not None):
 						if (properPickHero is not None):
-							pickedHeroes, heroesLeft, heroAdvMap = undoPick(properRemoveHero, 
-																			pickedHeroes, 
-																			heroesLeft, 
-																			heroAdvantageDict, 
-																			heroAdvMap, 
-																			percentThreshold, 
-																			sortPrefix)
-							pickedHeroes, heroesLeft, heroAdvMap, shortDict = pickHero(properPickHero, 
-																					   shortDict,
-																					   pickedHeroes, 
-																					   heroesLeft, 
-																					   heroAdvantageDict, 
-																					   heroAdvMap, 
-																					   percentThreshold,
-																					   sortPrefix)
+							pickedHeroes, heroesLeft, heroAdvMap = undoPick(properRemoveHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix)
+							pickedHeroes, heroesLeft, heroAdvMap, shortDict = pickHero(properPickHero, shortDict, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix)
 						else:
 							print("Invalid hero to pick in place of hero you are removing.")
 					else:
@@ -115,7 +103,7 @@ def startPicks():
 					else:
 						print("Hero not left in remaining hero pool. Ill advised to pick.")
 				else:
-					print("Invalid hero to search. Try again.")
+					print("Invalid hero to search.")
 			elif (pickedHero[:4] == "sort"):
 				sortTokens = pickedHero.split(' ')
 				if (len(sortTokens) == 1):
@@ -125,21 +113,14 @@ def startPicks():
 			elif (pickedHero[:5] == "focus"):
 				focusTokens = pickedHero.split(" ")
 				if ((len(focusTokens) > 1) and (focusTokens[1] in ROLES_NAMES)):
-					focusRemainingHeroPool(focusTokens[1], heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
+					heroesLeft = focusRemainingHeroPool(focusTokens[1], heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
 			elif (pickedHero[:5] == "prune"):
 				heroesLeft = pruneHeroesByRole(pickedHero, heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
 			elif ((pickedHero[:3].lower() == BAN_COMMAND) and (pickedHero[3].lower() != 'e')):
 				heroesLeft = banHero(pickedHero, shortDict, heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
 			else:
-				pickedHeroes, heroesLeft, heroAdvMap, shortDict= pickHero(pickedHero, 
-																		  shortDict, 
-																		  pickedHeroes, 
-																		  heroesLeft, 
-																		  heroAdvantageDict, 
-																		  heroAdvMap, 
-																		  percentThreshold, 
-																		  sortPrefix)
-	while(True):
+				pickedHeroes, heroesLeft, heroAdvMap, shortDict= pickHero(pickedHero, shortDict, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix)
+	while (True):
 		print("Enter " + KILL_COMMAND + " at any time to quit sorting.")
 		sortOption = input("\n\nEnter sorting method (" + SORT_INPUTS[0] + ", " + SORT_INPUTS[1] + ", or 1-5): ").lower()
 		if (sortOption == KILL_COMMAND):
@@ -155,10 +136,7 @@ def addToShorthands(pickedHero, shortDict):
 		response = input("Adding shorthand '" + pickedHero + "' for hero '" + heroToMap + "'. Enter 'y' to confirm: ")
 		if (response == 'y'):
 			shortDict = addShorthand(heroToMap, pickedHero, shortDict)
-			print("Shorthand added.")
 			heroToReturn = heroToMap
-		else:
-			print("Shorthand cancelled.")
 	else:
 		print("Invalid hero name '" + heroToMap + "', not adding to shorthands. Please enter a real name.")
 	return shortDict, heroToReturn
@@ -168,18 +146,11 @@ def undoPick(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap
 	heroAdvMap, heroesLeft = initHeroAdvs()
 	pickedCopy = []
 	for hero in pickedHeroes:
-		pickedCopy, heroesLeft, heroAdvMap = performAdvantageSearch(hero, 
-																	pickedCopy, 
-																	heroesLeft, 
-																	heroAdvantageDict, 
-																	heroAdvMap, 
-																	percentThreshold,
-																	sortPrefix)
+		pickedCopy, heroesLeft, heroAdvMap = performAdvantageSearch(hero, pickedCopy, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix)
 	return pickedCopy, heroesLeft, heroAdvMap
 
 def initHeroAdvs():
-	heroAdvMap = {}
-	heroesLeft = []
+	heroAdvMap, heroesLeft = {}, []
 	for hero in HEROES_LIST:
 		heroAdvMap[hero] = []
 		heroesLeft.append(hero)
@@ -200,17 +171,12 @@ def focusRemainingHeroPool(focusSpecifier, heroesLeft, heroAdvMap, pickedHeroes,
 	toFocus = splitFileByNewline("data/" + focusSpecifier)
 	heroesLeft = iterateAndRemove(heroesLeft, lambda toFocus, entry: entry not in toFocus, toFocus)
 	performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
+	return heroesLeft
 
 def pickHero(pickedHero, shortDict, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix):
 	properHero, shortDict = findHero(pickedHero, shortDict, HEROES_LIST)
 	if (properHero is not None):
-		pickedHeroes, heroesLeft, heroAdvMap = performAdvantageSearch(properHero, 
-																	  pickedHeroes, 
-																	  heroesLeft, 
-																	  heroAdvantageDict, 
-																	  heroAdvMap, 
-																	  percentThreshold,
-																	  sortPrefix)
+		pickedHeroes, heroesLeft, heroAdvMap = performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix)
 	return pickedHeroes, heroesLeft, heroAdvMap, shortDict
 
 def pruneHeroesByRole(pickedHero, heroesLeft, heroAdvMap, pickedHeroes, sortPrefix): #TODO turn into call for other cousin of this
@@ -267,7 +233,7 @@ def performAdvantageSearch(properHero, pickedHeroes, heroesLeft, heroAdvantageDi
 	return pickedHeroes, heroesLeft, heroAdvMap
 
 def performSort(heroesLeft, heroAdvMap, pickedHeroes, sortOption):
-	if (sortOption is None or len(pickedHeroes) == 0):
+	if (sortOption == "" or len(pickedHeroes) == 0):
 		pickedHeader = ''
 		for hero in pickedHeroes:
 			pickedHeader += '{:<20}'.format(hero)
