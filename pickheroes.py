@@ -45,15 +45,6 @@ def startPicks():
 	shortDict = load_obj(SHORTHAND_PICKLE_NAME)
 	pickedHeroes = []
 	heroAdvMap, heroesLeft = initHeroAdvs()
-
-	informationPool[] = {}
-	informationPool["percentThreshold"] = load_obj(THRESHOLD_PICKLE_NAME)
-	informationPool["sortPrefix"] = load_obj(SORTING_PICKLE_NAME)
-	informationPool["heroAdvantageDict"] = load_obj(ADV_PICKLE_NAME)
-	informationPool["shortDict"] = load_obj(SHORTHAND_PICKLE_NAME)
-	informationPool["pickedHeroes"] = []
-	informationPool["heroAdvMap"] = heroAdvMap
-	informationPool["heroesLeft"] = heroesLeft
 	performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
 	while (len(pickedHeroes) < 5):
 		print("\n")
