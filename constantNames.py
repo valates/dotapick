@@ -22,7 +22,7 @@ ADV_PICKLE_NAME = "heromatchups"
 SHORTHAND_PICKLE_NAME = "shorthands"
 
 """ Shorthand for input to remove a hero from the pool of heroes able to be picked without considering
-	it a picked hero for the opposing team. """
+        it a picked hero for the opposing team. """
 BAN_COMMAND = "ban"
 
 """ List of all banned strings that are not allowed to be used as keys in our shorthand dictionary. """
