@@ -1,5 +1,5 @@
 from fileOperators import *
-from nameFormater import *
+from nameFormater import properFormatName
 from constantNames import *
 from pickleSerializers import *
 

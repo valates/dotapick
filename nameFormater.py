@@ -3,12 +3,12 @@
 def properFormatName(heroname):
 	properHero = ''
 	for i in range(0, len(heroname)):
-		if ((i == 0) or (heroname[(i - 1)] == ' ') or (heroname[(i - 1)] == '-')) and (heroname[i:i+2] != "of") and (heroname[i:i+2] != "th"):
+		if (((i == 0) or (heroname[(i - 1)] == ' ') or (heroname[(i - 1)] == '-')) and 
+			(heroname[i:i+2] != "of") and 
+			(heroname[i:i+2] != "th")):
 			properHero += heroname[i].capitalize()
 		else:
 			properHero += heroname[i]
-	#properHero = properHero.replace("Of", "of")
-	#properHero = properHero.replace("The", "the")
 	return prophetFix(properHero)
 
 """ For an inputted string HERONAME, fixes an edge case where the

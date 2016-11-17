@@ -2,7 +2,7 @@ import requests
 from fileOperators import *
 from nameFormater import *
 from constantNames import *
-from shorthand import *
+from shorthand import formShorthands
 from pickleSerializers import *
 from htmlOperators import htmlSearcher, htmlSearchAll
 from random import randint
