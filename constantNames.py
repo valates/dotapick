@@ -35,9 +35,16 @@ ROLES_NAMES = ["carry", "disabler", "initiator", "jungler", "support", "tank", "
 
 """ Commands used internally in the function startPicks() in pickHeroes.py. 
 They're present here to ensure they're all blacklisted from being used as shorthands."""
-INTERNAL_COMMANDS = ["undo", "repick", "find", "sort", "focus", "ban"]
+INTERNAL_COMMANDS = ["help", "undo", "repick", "find", "focus", "ban"]
+
+""" The directory containing the help output for startPicks() in pickHeroes.py. """
+INTERNAL_HELP_FILE = "data/internalCommands"
+
+""" The output supplied at a request for help or invalid user input in startPicks(). """
+INTERNAL_HELP_OUTPUT = splitFileByNewline(INTERNAL_HELP_FILE)
 
 """ List of all banned strings that are not allowed to be used as keys in our shorthand dictionary. """
 SHORTHAND_BLACKLIST = SORT_INPUTS + ROLES_NAMES + HEROES_LIST + INTERNAL_COMMANDS + [SHORTHAND_PICKLE_NAME, ADV_PICKLE_NAME, 
                                                                                      KILL_COMMAND, SHORTHAND_FILE, MATCHES_FILE, 
-                                                                                     SORTING_PICKLE_NAME, THRESHOLD_PICKLE_NAME]
+                                                                                     SORTING_PICKLE_NAME, THRESHOLD_PICKLE_NAME,
+                                                                                     INTERNAL_HELP_FILE]

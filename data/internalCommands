@@ -1,0 +1,27 @@
+Acceptable commands:
+help
+Outputs this list of commands and their purpose.
+
+q
+Exits the program.
+
+undo <heropicked>
+Removes specified hero from the picked hero list. Removes last picked hero if <heropicked> is empty.
+
+repick <heropicked> <heronotpicked>
+Removes <heropicked> from the picked hero list and replaces it with <heronotpicked>.
+
+find <heronotpicked>
+Searches list of heroes remaining in the pool for <heronotpicked> and outputs that hero's current advantage mappings. Prints a warning if hero has been pruned.
+
+<sortingcommand>
+Sort the remaining heroes based off of the string specifier <sorting command>.
+
+focus <herorolename>
+Removes all heroes that cannot play as the role specified in <herorolename> from the list of remaining heroes.
+
+ban <heroname>
+Removes <heroname> from the pool of potential heroes to pick from.
+
+<heroname>
+Picks the hero associated with the string <heroname>.
