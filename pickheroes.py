@@ -1,5 +1,4 @@
 import argparse
-import sys
 from constantNames import THRESHOLD_PICKLE_NAME, SORTING_PICKLE_NAME, SORTING_PICKLE_NAME, ADV_PICKLE_NAME, SHORTHAND_PICKLE_NAME, KILL_COMMAND, ROLES_NAMES, SORT_INPUTS, HEROES_LIST, BAN_COMMAND
 from pickleSerializers import save_obj, load_obj
 from heroFileFormatter import pullDotabuff
@@ -7,34 +6,38 @@ from sorting import performSort
 from shorthand import resetShorthands
 from heroes import initHeroAdvs, findHero, pickHero, banHero,  undoPick, focusRemainingHeroPool
 
-#TODO help option output from file contents
 
-def main(args):
-        argc = len(sys.argv)
-        argv = sys.argv
-        if (argc == 2):
-                if (argv[1].lower() == "--pulldotabuff"):
-                        pullDotabuff()
-                if (argv[1].lower() == "--reset"):
-                        save_obj(2.0, THRESHOLD_PICKLE_NAME)
-                        save_obj("", SORTING_PICKLE_NAME)
-                        resetShorthands()
-                if (argv[1].lower() == "--setsort"):
-                        save_obj("", SORTING_PICKLE_NAME)
-        else:
-                if (argc == 3):
-                        if (argv[1].lower() == "--setpercent"):
-                                try:
-                                        percentThreshold = float(argv[2])
-                                        save_obj(percentThreshold, THRESHOLD_PICKLE_NAME)
-                                except ValueError:
-                                        print("Invalid float value, '" + argv[2] + ",' inputted. Continuing with previous value.")
-                        if (argv[1].lower() == "--setsort"):
-                                if (argv[2].lower() in SORT_INPUTS):
-                                        save_obj(argv[2].lower(), SORTING_PICKLE_NAME)
-                                else:
-                                        print("Invalid sorting value, '" + argv[2] + "'. Continuing with previous value.")
-        startPicks()
+#TODO change setsort to include some value to signift sort by alphabet
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-d", "--dotabuff", 
+                    help="Pulls hero data from dotabuff",
+                    action="store_true")
+parser.add_argument("-r", "--reset",         
+                    help="Sets the percent threshold back to 2.0, resets sorting setting to default to alphabet sorting, and removes all user created shorthands.",
+                    action="store_true")
+parser.add_argument("-s", "--sort", type=str,
+                    help="Changes the default sorting option to one specified. Sorts by alphabet if no input argument.")
+parser.add_argument("-p", "--percent", type=float,
+                    help="Changes the percent threshold above which opposing heroes are pruned. For each picked hero, any hero the picked hero has a percent advantage > our percent threshold is pruned.")
+
+args = parser.parse_args()
+if args.dotabuff:
+    pullDotabuff()
+if args.reset:
+    save_obj(2.0, THRESHOLD_PICKLE_NAME)
+    save_obj("", SORTING_PICKLE_NAME)
+    resetShorthands()
+if args.sort:
+    if (args.sort in SORT_INPUTS):
+        save_obj(args.sort, SORTING_PICKLE_NAME)
+    else:
+        print("Invalid sorting value, '" + args.sort + "'. Continuing with previous value.")
+        print("Acceptable sorting values are as follows: ")
+        for entry in SORT_INPUTS:
+            print(entry)
+if args.percent:
+    save_obj(args.percent, THRESHOLD_PICKLE_NAME)
 
 def startPicks():
         percentThreshold = load_obj(THRESHOLD_PICKLE_NAME)
@@ -140,5 +143,4 @@ def startPicks():
                         break
                 performSort(heroesLeft, heroAdvMap, pickedHeroes, sortOption)
 
-if __name__ == '__main__':
-    main(sys.argv)
+startPicks()
