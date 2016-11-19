@@ -70,10 +70,27 @@ def banHero(pickedHero, shortDict, heroesLeft, heroAdvMap, pickedHeroes, sortPre
                 print("'" + pickedHero + "' not present in hero list. Try again.")
         return heroesLeft
 
+def undoPick(undoCmd, shortDict, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortOption):
+    if (len(undoCmd) == 1):
+        properHero = pickedHeroes[-1]
+    else:
+        properHero, shortDict = findHero(undoCmd[1], shortDict, pickedHeroes)
+    if (properHero is not None):
+        pickedHeroes, heroesLeft, heroAdvMap = undoHelper(properHero, 
+                                                          pickedHeroes, 
+                                                          heroesLeft, 
+                                                          heroAdvantageDict, 
+                                                          heroAdvMap, 
+                                                          percentThreshold, 
+                                                          sortOption)
+    else:
+        print(properHero + " not present in picked heroes. Try again.")
+    return pickedHeroes, heroesLeft, heroAdvMap
+
 """ Removes the hero specificied by PROPERHERO from the list of picked heroes,
         PICKEDHEROES. Updates thel sit of remaining heroes accordingly (i.e., readds
         the heroes that are no longer considered highly disadvantaged). """
-def undoPick(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix):
+def undoHelper(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortPrefix):
         pickedHeroes.remove(properHero)
         heroAdvMap, heroesLeft = initHeroAdvs()
         pickedCopy = []
@@ -87,6 +104,35 @@ def undoPick(properHero, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap
                                                                                                                                         sortPrefix)
         return pickedCopy, heroesLeft, heroAdvMap
 
+def repick(repickCmd, shortDict, pickedHeroes, heroesLeft, heroAdvantageDict, heroAdvMap, percentThreshold, sortOption):
+    if (len(repickCmd) != 3):
+        print("Insufficient arguments to repick command.")
+    else:
+        properRemoveHero, shortDict = findHero(repickCmd[1], shortDict, pickedHeroes)
+        properPickHero, shortDict = findHero(repickCmd[2], shortDict, [hero for hero in HEROES_LIST if hero not in pickedHeroes])
+        if (properRemoveHero is not None):
+            if (properPickHero is not None):
+                pickedHeroes, heroesLeft, heroAdvMap = undoPick(properRemoveHero, 
+                                                                pickedHeroes, 
+                                                                heroesLeft, 
+                                                                heroAdvantageDict, 
+                                                                heroAdvMap, 
+                                                                percentThreshold, 
+                                                                sortOption)
+                pickedHeroes, heroesLeft, heroAdvMap, shortDict = pickHero(properPickHero, 
+                                                                           shortDict, 
+                                                                           pickedHeroes, 
+                                                                           heroesLeft, 
+                                                                           heroAdvantageDict, 
+                                                                           heroAdvMap, 
+                                                                           percentThreshold, 
+                                                                           sortOption)
+            else:
+                print("Invalid hero to pick in place of hero you are removing.")
+        else:
+            print("Invalid hero to remove.")
+
+    return pickedHeroes, heroesLeft, heroAdvMap, shortDict
 
 """ Takes the string name for a file listing heroes fitting a specific role.
         Removes all heroes from the remaining hero list that do not have their name

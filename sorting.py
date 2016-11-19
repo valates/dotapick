@@ -4,7 +4,7 @@ from constantNames import SORT_INPUTS
         dictionary HEROADVMAP which contains the % advantage each hero in list PICKEDHEROES
         has against the hero in HEROESLEFT. Sorts based on the string specifier SORTOPTION. """
 def performSort(heroesLeft, heroAdvMap, pickedHeroes, sortOption):
-        if (sortOption == "" or len(pickedHeroes) == 0):
+        if ((sortOption == SORT_INPUTS[-1]) or (len(pickedHeroes) == 0)):
                 pickedHeader = ''
                 for hero in pickedHeroes:
                         pickedHeader += '{:<20}'.format(hero)
