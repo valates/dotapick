@@ -1,5 +1,10 @@
 import argparse
-from constantNames import THRESHOLD_PICKLE_NAME, SORTING_PICKLE_NAME, SORTING_PICKLE_NAME, ADV_PICKLE_NAME, SHORTHAND_PICKLE_NAME, KILL_COMMAND, ROLES_NAMES, SORT_INPUTS, HEROES_LIST, INTERNAL_COMMANDS, INTERNAL_HELP_OUTPUT
+
+#put in main
+#check constants
+#user iter tools
+
+from constantNames import THRESHOLD_PICKLE_NAME, SORTING_PICKLE_NAME, ADV_PICKLE_NAME, SHORTHAND_PICKLE_NAME, KILL_COMMAND, ROLES_NAMES, SORT_INPUTS, HEROES_LIST, INTERNAL_COMMANDS, INTERNAL_HELP_OUTPUT
 from pickleSerializers import save_obj, load_obj
 from heroFileFormatter import pullDotabuff
 from sorting import performSort
@@ -115,10 +120,7 @@ def startPicks():
                                                                                heroAdvMap, 
                                                                                percentThreshold, 
                                                                                sortOption)
-                    if (len(pickedHeroes) == 5):
-                        print("The maximum number of heroes have been picked")
                 else:
-                    strAppend = ''
                     if (len(pickedHeroes) == 5):
                         strAppend = "The maximum number of heroes have been picked"
                     else:
@@ -126,8 +128,8 @@ def startPicks():
                     print("COMMAND BLOCKED: " + strAppend)
 
 def internalHelp():
-  print("\n\n")
-  for line in INTERNAL_HELP_OUTPUT:
-    print(line)
+    print("\n\n")
+    for line in INTERNAL_HELP_OUTPUT:
+        print(line)
 
 startPicks()

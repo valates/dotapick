@@ -11,7 +11,6 @@ from random import randint
     the advantage every other hero has against that hero and stores it in a serialized dictionary. """
 def pullDotabuff():
     heroLen = len(HEROES_LIST)
-    heroHtml = splitFileByNewline("data/herohtml")
     heroAdvDict = {}
     dataStart = "<table class=\"sortable\">"
     dataEnd = "</table>"
@@ -24,10 +23,6 @@ def pullDotabuff():
         url = url.replace("'", "")
         url = "http://www.dotabuff.com/heroes/" + url + "/matchups"
         response = requests.get(url, headers = {'User-agent': 'your bot 0.1'})
-        while (response.status_code != 200):
-            print("Blocked: sleeping for 10-15 minutes")
-            time.sleep((10 + randint(0, 5)) * 60)
-            response = requests.get(url, headers = {'User Agent': 'your bot 0.1'})
         urlText = response.text
         searchBlock = htmlSearcher(dataStart, dataEnd, urlText, False, True)[0]
         advantages = htmlSearchAll(advStart, advCutoff, searchBlock)

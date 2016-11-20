@@ -30,7 +30,6 @@ def htmlSearcher(startText, stopText, line, giveNull = False, haltBracketKilling
     are added to the list without any text between '<' and '>' being removed. Such text is removed if
     HALTBRACKETKILLING is False. """
 def htmlSearchAll(startText, stopText, line, haltBracketKilling = False):
-    lastStop = 0
     tokenTuple = htmlSearcher(startText, stopText, line, True, haltBracketKilling)
     tokens = []
     while (tokenTuple[1] != -1):

@@ -142,7 +142,7 @@ def repick(repickCmd, shortDict, pickedHeroes, heroesLeft, heroAdvantageDict, he
         in the corresponding role file specified by string FOCUSSPECIFIER. """
 def focusRemainingHeroPool(focusSpecifier, heroesLeft, heroAdvMap, pickedHeroes, sortPrefix):
     toFocus = splitFileByNewline("data/" + focusSpecifier)
-    heroesLeft = iterateAndRemove(heroesLeft, lambda toFocus, entry: entry not in toFocus, toFocus)
+    heroesLeft = iterateAndRemove(heroesLeft, lambda heroList, entry: entry not in heroList, heroList)
     performSort(heroesLeft, heroAdvMap, pickedHeroes, sortPrefix)
     return heroesLeft
 

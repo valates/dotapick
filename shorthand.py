@@ -1,5 +1,4 @@
-from nameFormatter import properFormatName
-from pickleSerializers import save_obj
+from pickleSerializers import save_obj, load_obj
 from fileOperators import formDictFromCommaFile
 from constantNames import SHORTHAND_FILE, SHORTHAND_PICKLE_NAME
 
@@ -39,5 +38,6 @@ def resetShorthands(factoryZero = False):
         shortDict = {}
         save_obj(shortDict, SHORTHAND_PICKLE_NAME)
     else:
-        shortDict = formShorthands()
+        formShorthands()
+        shortDict = save_obj(SHORTHAND_PICKLE_NAME)
     return shortDict
