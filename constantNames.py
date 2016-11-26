@@ -57,8 +57,19 @@ INTERNAL_HELP_FILE = "data/internalCommands"
     start_picks(). """
 INTERNAL_HELP_OUTPUT = split_file_by_newline(INTERNAL_HELP_FILE)
 
+""" Heroes currently not allowed in Captain's Mode. """
+CAPTAINS_UNALLOWED_HEROES = ["Underlord", "Arc Warden"]
+
+""" Pick and ban order of captain's mode.
+    0 ==> radiant ban
+    1 ==> dire ban
+    2 ==> radiant pick
+    3 ==> dire pick
+"""
+PICK_BAN_ORDER = [0, 1, 0, 1, 2, 3, 3, 2, 1, 0, 1, 0, 3, 2, 3, 2, 1, 0, 2, 3]
+
 """ List of all banned strings that are not allowed to be used as keys in our
     shorthand dictionary. """
-SHORTHAND_BLACKLIST = SORT_INPUTS + ROLES_NAMES + HEROES_LIST + INTERNAL_COMMANDS + INTERNAL_HELP_FILE
+SHORTHAND_BLACKLIST = SORT_INPUTS + ROLES_NAMES + HEROES_LIST + INTERNAL_COMMANDS
 SHORTHAND_BLACKLIST += [SHORTHAND_PICKLE_NAME, ADV_PICKLE_NAME, KILL_COMMAND, SHORTHAND_FILE, MATCHES_FILE]
-SHORTHAND_BLACKLIST += [SORTING_PICKLE_NAME, THRESHOLD_PICKLE_NAME]
+SHORTHAND_BLACKLIST += [SORTING_PICKLE_NAME, THRESHOLD_PICKLE_NAME, INTERNAL_HELP_FILE]

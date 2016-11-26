@@ -16,7 +16,6 @@ def init_hero_advs():
     for hero in HEROES_LIST:
         hero_adv_map[hero] = []
         heroes_left.append(hero)
-    print(hero_adv_map)
     return hero_adv_map, heroes_left
 
 
@@ -70,11 +69,13 @@ def pick_hero(picked_hero, short_dict, picked_heroes, heroes_left,
     heroes, HEROESLEFT. """
 
 
-def ban_hero(picked_hero, short_dict, heroes_left):
-    proper_hero, short_dict = find_hero(picked_hero[3:].strip(), short_dict,
-                                        heroes_left)
+def ban_hero(picked_hero, short_dict, heroes_left, checked_against, captains=False):
+    if (not captains):
+        picked_hero = picked_hero[3:]
+    proper_hero, short_dict = find_hero(picked_hero.strip(), short_dict, checked_against)
     if (proper_hero is not None):
-        heroes_left.remove(proper_hero)
+        if proper_hero in heroes_left:
+            heroes_left.remove(proper_hero)
         print(proper_hero + " banned.")
     else:
         print("'" + picked_hero + "' not present in hero list. Try again.")
