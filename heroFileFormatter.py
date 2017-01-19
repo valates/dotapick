@@ -41,3 +41,4 @@ def pull_dotabuff():
         i += 1
     save_obj(hero_adv_dict, ADV_PICKLE_NAME)
     form_shorthands()
+    print("\n\n\n")

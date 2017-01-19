@@ -19,7 +19,6 @@ def form_shorthands():
 
 
 def add_shorthand(heroname, shorthand, short_dict):
-    print(short_dict)
     if shorthand not in short_dict:
         short_dict[shorthand] = heroname
         save_obj(short_dict, SHORTHAND_PICKLE_NAME)
