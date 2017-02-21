@@ -50,8 +50,7 @@ def pull_dotabuff():
     save_obj(hero_adv_dict, ADV_PICKLE_NAME)
     save_obj(hero_winrate_dict, OVERALL_PICKLE_NAME)
     form_shorthands()
-<<<<<<< HEAD
-    print('\n\n')
+    print('\n\n\n')
 
 
 def get_meta():
@@ -74,6 +73,3 @@ def get_meta():
                 meta_data[hero] = row[1:]
                 break
     save_obj(meta_data, BRACKET_PICKLE_NAME)
-=======
-    print("\n\n\n")
->>>>>>> 7da99082cda353060019c620429198f8039aa519
