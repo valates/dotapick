@@ -1,14 +1,17 @@
 import sys
 import argparse
-from constantNames import HEROES_LIST, THRESHOLD_PICKLE_NAME, SORTING_PICKLE_NAME, ADV_PICKLE_NAME, SHORTHAND_PICKLE_NAME, KILL_COMMAND, ROLES_NAMES, SORT_INPUTS, INTERNAL_COMMANDS, INTERNAL_HELP_OUTPUT, PICK_BAN_ORDER, CAPTAINS_UNALLOWED_HEROES
+import time
+from constantNames import HEROES_LIST, THRESHOLD_PICKLE_NAME, SORTING_PICKLE_NAME, ADV_PICKLE_NAME, SHORTHAND_PICKLE_NAME, KILL_COMMAND, BRACKET_PICKLE_NAME, ROLES_NAMES, SORT_INPUTS, INTERNAL_COMMANDS, INTERNAL_HELP_OUTPUT, PICK_BAN_ORDER, CAPTAINS_UNALLOWED_HEROES, UNPLAYABLE_WINRATE
 from pickleSerializers import save_obj, load_obj
-from heroFileFormatter import pull_dotabuff
+from heroFileFormatter import pull_dotabuff, get_meta
 from sorting import perform_sort
+from nameFormatter import proper_format_name
 from shorthand import reset_shorthands
 from heroes import init_hero_advs, find_hero, pick_hero, ban_hero,  undo_pick, repick, focus_remaining_hero_pool, add_to_shorthands
 
 
 def main(args):
+    #todo- find way to not call form_shorthands in pull_dbuff, causes reset each time
     args = format_args()
     if args.dotabuff:
         pull_dotabuff()
@@ -28,6 +31,28 @@ def main(args):
         save_obj(2.0, THRESHOLD_PICKLE_NAME)
         save_obj(SORT_INPUTS[-1], SORTING_PICKLE_NAME)
         reset_shorthands()
+    if args.log:
+        pull_dotabuff()
+        log_name = 'logged-' + time.strftime("%m-%d-%Y")
+        save_obj(load_obj(ADV_PICKLE_NAME), log_name)
+    if args.meta:
+        get_meta()
+        meta_to_prune = load_obj(BRACKET_PICKLE_NAME)
+        desired_brackets = args.meta.split(',')
+        brackets_to_check = []
+        brackets_to_remove = [1, 2, 3, 4, 5]
+        for entry in desired_brackets:
+            if entry in '12345':
+                brackets_to_remove.remove(int(entry))
+        for hero in meta_to_prune:
+            cur_hero = meta_to_prune[hero]
+            pop_shift = 1
+            for entry in brackets_to_remove:
+                cur_hero.pop(entry - pop_shift)
+                pop_shift += 1
+        save_obj(meta_to_prune, BRACKET_PICKLE_NAME)
+    else:
+        save_obj({}, BRACKET_PICKLE_NAME)
     if args.zeta:
         return
     elif args.captain:
@@ -46,6 +71,13 @@ def start_picks():
     short_dict = load_obj(SHORTHAND_PICKLE_NAME)
     picked_heroes = []
     hero_adv_map, heroes_left = init_hero_advs()
+    meta_trends = load_obj(BRACKET_PICKLE_NAME)
+    for entry in meta_trends:
+        brackets_of_hero = meta_trends[entry]
+        for val in brackets_of_hero:
+            if (val <= UNPLAYABLE_WINRATE):
+                heroes_left.remove(entry)
+                break
     perform_sort(heroes_left, hero_adv_map, picked_heroes, sort_option)
     while (True):
         print("\n")
@@ -232,6 +264,13 @@ def format_args():
     parser.add_argument("-c", "--captain", type=str,
                         help="Starts captain's mode picking style instead of standard picking mode."
                         "Must specify starting team to get pick/ban order correct.")
+    parser.add_argument("-l", "--log",
+                        help="Logs current dotabuff info into a folder containing serialized objects.",
+                        action="store_true")
+    parser.add_argument("-m", "--meta", type=str,
+                        help="Pulls metadata from dotabuff. Metadata is the winrate of heroes across \
+                        all skill brackets. Requires a bracket specifier of the form 'a,b,c' where \
+                        a, b, c are numbers between 1 and 5.")
     parser.add_argument("-z", "--zeta",
                         help="If this specifier is present, does not proceed \
                         to picking phase.",

@@ -37,6 +37,13 @@ SORTING_PICKLE_NAME = "sortPreference"
     heroes. """
 THRESHOLD_PICKLE_NAME = "percentThreshold"
 
+""" Name of file containing overall hero winrate across all brackets for all heroes. """
+OVERALL_PICKLE_NAME = "overallWinrate"
+
+
+""" Name of file containing hero winrate across all skill brackets. """
+BRACKET_PICKLE_NAME = "bracketWinrate"
+
 """ List containing all hero names. """
 HEROES_LIST = split_file_by_newline(HERONAME_FILE)
 
@@ -58,7 +65,7 @@ INTERNAL_HELP_FILE = "data/internalCommands"
 INTERNAL_HELP_OUTPUT = split_file_by_newline(INTERNAL_HELP_FILE)
 
 """ Heroes currently not allowed in Captain's Mode. """
-CAPTAINS_UNALLOWED_HEROES = ["Underlord", "Arc Warden"]
+CAPTAINS_UNALLOWED_HEROES = ["Monkey King", "Techies", "Treant Protector"]
 
 """ Pick and ban order of captain's mode.
     0 ==> radiant ban
@@ -73,3 +80,6 @@ PICK_BAN_ORDER = [0, 1, 0, 1, 2, 3, 3, 2, 1, 0, 1, 0, 3, 2, 3, 2, 1, 0, 2, 3]
 SHORTHAND_BLACKLIST = SORT_INPUTS + ROLES_NAMES + HEROES_LIST + INTERNAL_COMMANDS
 SHORTHAND_BLACKLIST += [SHORTHAND_PICKLE_NAME, ADV_PICKLE_NAME, KILL_COMMAND, SHORTHAND_FILE, MATCHES_FILE]
 SHORTHAND_BLACKLIST += [SORTING_PICKLE_NAME, THRESHOLD_PICKLE_NAME, INTERNAL_HELP_FILE]
+
+""" Constant for winrate below or at which a hero should be considered unplayable. """
+UNPLAYABLE_WINRATE = 45.00
