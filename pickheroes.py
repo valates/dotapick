@@ -1,6 +1,9 @@
 import sys
 import argparse
 import time
+#import tkinter as tk
+from tkinter import *
+from tkinter import ttk
 from constantNames import HEROES_LIST, THRESHOLD_PICKLE_NAME, SORTING_PICKLE_NAME, ADV_PICKLE_NAME, SHORTHAND_PICKLE_NAME, KILL_COMMAND, BRACKET_PICKLE_NAME, ROLES_NAMES, SORT_INPUTS, INTERNAL_COMMANDS, INTERNAL_HELP_OUTPUT, PICK_BAN_ORDER, CAPTAINS_UNALLOWED_HEROES, UNPLAYABLE_WINRATE
 from pickleSerializers import save_obj, load_obj
 from heroFileFormatter import pull_dotabuff, get_meta
@@ -9,8 +12,54 @@ from nameFormatter import proper_format_name
 from shorthand import reset_shorthands
 from heroes import init_hero_advs, find_hero, pick_hero, ban_hero,  undo_pick, repick, focus_remaining_hero_pool, add_to_shorthands
 
+hero_pictures = []
+root = Tk()
+
+for i in range(len(HEROES_LIST)):
+    hero_name = HEROES_LIST[i]
+    picture_name = '176px-' + hero_name.replace(' ', '_') + '_icon.png'
+    hero_pictures.append((hero_name, PhotoImage(file=picture_name)))
+"""
+class Application(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.pack()
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.hero_buttons = []
+        for i in range(25):
+            hero_button = tk.Button(self)
+            hero_button["text"] = HEROES_LIST[i]
+            hero_button["image"] = hero_pictures[i]
+            hero_button.config(image=hero_pictures[i],width="50",height="50")
+            hero_button.pack(side="top")
+            self.hero_buttons.append(hero_button)"""
+
+
+
+#app = Application(master=root)
+#app.mainloop()
 
 def main(args):
+    
+    #Label frame
+    root.title("Dotapicker")
+
+    #Create frame
+    mainframe = ttk.Frame(root)
+    mainframe.grid(column=0, row=0, sticky=(N, W, E, S))
+
+    #Create button for each hero
+    for i in range(113):
+        hero_name = HEROES_LIST[i]
+        #for some reason it just uses last stored hero_pictures name since zeus is put in last... ugh
+        ttk.Button(mainframe, text=HEROES_LIST[i], command=lambda:print(hero_pictures[i][0]),
+                   image=hero_pictures[i][1]).grid(column=i%12, row=i//12, sticky=(N, W, E, S))
+    
+
+
+
     args = format_args()
     if args.dotabuff:
         pull_dotabuff()

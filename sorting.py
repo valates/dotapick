@@ -12,12 +12,15 @@ def perform_sort(heroes_left, hero_adv_map, picked_heroes, sort_option):
         for hero in picked_heroes:
             picked_header += '{:>20}'.format(hero)
         print('{:<20}'.format("Hero") + picked_header)
+        full_output = ''
         for hero in heroes_left:
             hero_display = '{:<20}'.format(hero)
             adv_stats = ''
             for adv in hero_adv_map[hero]:
                 adv_stats += '{:>20}'.format(adv)
-            print(hero_display + adv_stats)
+            full_output += (hero_display + adv_stats + '\n')
+        print(full_output)
+        return full_output
     else:
         sort_values = []
         for hero in heroes_left:
@@ -38,10 +41,13 @@ def perform_sort(heroes_left, hero_adv_map, picked_heroes, sort_option):
                 sum_list.append(sum_tuple)
             sum_list = sorted(sum_list, key=lambda cur_sum: cur_sum[1],
                               reverse=True)
+            full_output = ''
             for sum_entry in sum_list:
                 hero_display = '{:<20}'.format(sum_entry[0]) + '\t\t \
                                 ' + '{0:.2f}'.format(sum_entry[1])
-                print(hero_display)
+                full_output += (hero_display + '\n')
+            print(full_output)
+            return full_output
         else:
             if (sort_option in SORT_INPUTS[2:]):
                 sort_option = int(sort_option)
