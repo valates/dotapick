@@ -5,7 +5,6 @@ from constantNames import SORT_INPUTS
     each hero in list PICKEDHEROES has against the hero in HEROESLEFT.
     Sorts based on the string specifier SORTOPTION. """
 
-#ABCDE
 
 def perform_sort(heroes_left, hero_adv_map, picked_heroes, sort_option):
     if ((sort_option == SORT_INPUTS[-1]) or (len(picked_heroes) == 0)):

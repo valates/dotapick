@@ -1,7 +1,7 @@
 import requests
-from constantNames import HEROES_LIST, ADV_PICKLE_NAME, OVERALL_PICKLE_NAME, BRACKET_PICKLE_NAME
+from constantNames import HEROES_LIST, ADV_PICKLE_NAME, OVERALL_PICKLE_NAME, BRACKET_PICKLE_NAME, SHORTHAND_PICKLE_NAME
 from shorthand import form_shorthands
-from pickleSerializers import save_obj
+from pickleSerializers import save_obj, load_obj
 from htmlOperators import html_searcher, html_search_all
 
 """ Pulls public match data from dotabuff.com for each existing hero. For each
@@ -9,7 +9,7 @@ from htmlOperators import html_searcher, html_search_all
     it in a serialized dictionary. """
 
 
-def pull_dotabuff():
+def pull_dotabuff(make_new_shorthand_list=False):
     hero_len = len(HEROES_LIST)
     hero_adv_dict = {}
     hero_winrate_dict = {}
@@ -49,7 +49,8 @@ def pull_dotabuff():
         i += 1
     save_obj(hero_adv_dict, ADV_PICKLE_NAME)
     save_obj(hero_winrate_dict, OVERALL_PICKLE_NAME)
-    form_shorthands()
+    if (load_obj(SHORTHAND_PICKLE_NAME) == {}):
+        form_shorthands()
     print('\n\n\n')
 
 

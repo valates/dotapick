@@ -30,11 +30,7 @@ def main(args):
     if args.reset:
         save_obj(2.0, THRESHOLD_PICKLE_NAME)
         save_obj(SORT_INPUTS[-1], SORTING_PICKLE_NAME)
-        reset_shorthands()
-    if args.log:
-        pull_dotabuff()
-        log_name = 'logged-' + time.strftime("%m-%d-%Y")
-        save_obj(load_obj(ADV_PICKLE_NAME), log_name)
+        form_shorthands()
     if args.meta:
         get_meta()
         meta_to_prune = load_obj(BRACKET_PICKLE_NAME)
@@ -264,9 +260,6 @@ def format_args():
     parser.add_argument("-c", "--captain", type=str,
                         help="Starts captain's mode picking style instead of standard picking mode."
                         "Must specify starting team to get pick/ban order correct.")
-    parser.add_argument("-l", "--log",
-                        help="Logs current dotabuff info into a folder containing serialized objects.",
-                        action="store_true")
     parser.add_argument("-m", "--meta", type=str,
                         help="Pulls metadata from dotabuff. Metadata is the winrate of heroes across \
                         all skill brackets. Requires a bracket specifier of the form 'a,b,c' where \
