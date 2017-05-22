@@ -11,7 +11,6 @@ from heroes import init_hero_advs, find_hero, pick_hero, ban_hero,  undo_pick, r
 
 
 def main(args):
-    #todo- find way to not call form_shorthands in pull_dbuff, causes reset each time
     args = format_args()
     if args.dotabuff:
         pull_dotabuff()
@@ -34,12 +33,15 @@ def main(args):
     if args.meta:
         get_meta()
         meta_to_prune = load_obj(BRACKET_PICKLE_NAME)
+        args.meta = args.meta.replace('overall', '6')
+        args.meta = args.meta.replace('all', '6')
+        args.meta = args.meta.replace('ns', '1,2,3,4,5')
+        args.meta = args.meta.replace('vhs', '4,5')
+        args.meta = args.meta.replace('hs', '3,4,5')
         desired_brackets = args.meta.split(',')
-        brackets_to_check = []
-        brackets_to_remove = [1, 2, 3, 4, 5]
+        brackets_to_remove = [1, 2, 3, 4, 5, 6]
         for entry in desired_brackets:
-            if entry in '12345':
-                brackets_to_remove.remove(int(entry))
+            brackets_to_remove.remove(int(entry))
         for hero in meta_to_prune:
             cur_hero = meta_to_prune[hero]
             pop_shift = 1
@@ -74,6 +76,7 @@ def start_picks():
             if (val <= UNPLAYABLE_WINRATE):
                 heroes_left.remove(entry)
                 break
+    suppress_hero_list = False
     perform_sort(heroes_left, hero_adv_map, picked_heroes, sort_option)
     while (True):
         print("\n")

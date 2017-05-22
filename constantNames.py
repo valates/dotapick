@@ -48,8 +48,9 @@ BRACKET_PICKLE_NAME = "bracketWinrate"
 HEROES_LIST = split_file_by_newline(HERONAME_FILE)
 
 """ Names of the hero roles files. """
-ROLES_NAMES = ["carry", "disabler", "initiator", "jungler", "support", "tank",
-               "nuker", "pusher", "escape"]
+ROLES_NAMES = ["carry", "support", "melee", "ranged", 
+               "nuker", "disabler", "jungler", "durable", 
+               "escape", "pusher", "initiator"]
 
 """ Commands used internally in the function startPicks() in pickHeroes.py.
 They're present here to ensure they're all blacklisted from being used as

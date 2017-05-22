@@ -55,7 +55,9 @@ def pull_dotabuff(make_new_shorthand_list=False):
 
 
 def get_meta():
+    """ First get winrate for each skill bracket, then add overall winrate at the end. """
     meta_data = {}
+
     data_start = '<table class="sortable no-arrows r-tab-enabled">'
     data_end = "</table>"
     row_start = '<a href="/heroes/'
@@ -66,11 +68,25 @@ def get_meta():
     search_block = html_searcher(data_start, data_end, url_text, False, True)[0]
     rows = html_search_all(row_start, row_end, search_block)
     rows = [row.split('%') for row in rows]
-    rows = [[row[0], float(row[1]), float(row[3]), float(row[5]), float(row[7]), float(row[9])] for row in rows]
-    for hero in HEROES_LIST:
-        #need to have a less algorithmically horrendous solution
-        for row in rows:
-            if hero in row[0]:
-                meta_data[hero] = row[1:]
-                break
+    rows = [[row[0][(row[0].find('>') + 1):], float(row[1]), float(row[3]), float(row[5]), float(row[7]), float(row[9])] for row in rows]
+    for row in rows:
+        heroname = ''
+        for char in row[0]:
+            if char not in '0123456789.':
+                heroname += char
+        meta_data[heroname] = row[1:]
+
+    overall_win_start = '<a class="link-type-hero"'
+    overall_win_end = '<div class="bar bar-default"><div class="segment segment-win"'
+    url_overall = "http://www.dotabuff.com/heroes/winning"
+    response = requests.get(url_overall, headers={'User-agent': 'your bot 0.1'})
+    url_text_overall = response.text
+    rows_overall = html_search_all(overall_win_start, overall_win_end, url_text_overall, True)
+    rows_overall = [row[:-1] for row in rows_overall]
+    rows_overall = [row.split('</a></td><td data-value="') for row in rows_overall]
+    for row in rows_overall:
+        row[0] = row[0][(row[0].find('>') + 1):]
+        row[1] = float(row[1][(row[1].find('>') + 1):])
+        meta_data[row[0]] = meta_data[row[0]] + [row[1]]
+
     save_obj(meta_data, BRACKET_PICKLE_NAME)
