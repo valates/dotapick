@@ -33,11 +33,12 @@ def main(args):
     if args.meta:
         get_meta()
         meta_to_prune = load_obj(BRACKET_PICKLE_NAME)
+        #Each desired skill bracket will go one beyond in each direction, to account for border games
         args.meta = args.meta.replace('overall', '6')
         args.meta = args.meta.replace('all', '6')
-        args.meta = args.meta.replace('ns', '1,2,3,4,5')
-        args.meta = args.meta.replace('vhs', '4,5')
-        args.meta = args.meta.replace('hs', '3,4,5')
+        args.meta = args.meta.replace('ns', '1,2,3')
+        args.meta = args.meta.replace('vhs', '3')
+        args.meta = args.meta.replace('hs', '4,5')
         desired_brackets = args.meta.split(',')
         brackets_to_remove = [1, 2, 3, 4, 5, 6]
         for entry in desired_brackets:
